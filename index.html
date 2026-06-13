@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Наше меню</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap');
+
+  :root {
+    --cream: #FAF7F2;
+    --warm: #F2EDE4;
+    --ink: #1C1A17;
+    --muted: #6B6560;
+    --accent: #C4622D;
+    --accent-light: #F5E8DF;
+    --border: #E2DDD6;
+    --white: #FFFFFF;
+    --green: #3A6B4A;
+    --green-light: #EAF2EC;
+    --blue: #2B5278;
+    --blue-light: #E6EEF5;
+    --purple: #5B3A7E;
+    --purple-light: #F0EBF7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+  }
+  header .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.5rem;
+  }
+  header p { color: #AAA49C; font-size: 13px; font-weight: 300; }
+
+  nav {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1rem;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav button {
+    flex-shrink: 0;
+    padding: 1rem 1.25rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+  nav button:hover { color: var(--ink); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dish-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+
+  .dish-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .dish-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+  .dish-icon {
+    background: var(--warm);
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.8rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .dish-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+  }
+  .dish-icon .emoji-fallback {
+    position: relative;
+    z-index: 1;
+  }
+  .dish-icon .tag-corner {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 500;
+    z-index: 2;
+  }
+  /* Photo upload button */
+  .photo-btn {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    z-index: 3;
+    background: rgba(28,26,23,0.65);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 3px 9px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .dish-card:hover .photo-btn { opacity: 1; }
+  .photo-input { display: none; }
+
+  .tag-quick { background: var(--green-light); color: var(--green); }
+  .tag-special { background: var(--accent-light); color: var(--accent); }
+  .tag-airfryer { background: var(--blue-light); color: var(--blue); }
+  .tag-freeze { background: #EEF0F2; color: #555; }
+  .tag-sushi { background: var(--purple-light); color: var(--purple); }
+  .tag-tortilla { background: #FEF3C7; color: #92400E; }
+
+  .dish-body { padding: 0.9rem 1rem 1rem; }
+  .dish-name { font-weight: 500; font-size: 14px; margin-bottom: 4px; line-height: 1.3; }
+  .dish-desc { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
+  .dish-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .btn-recipe {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+  .btn-recipe:hover { background: var(--warm); color: var(--ink); }
+
+  .btn-add {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--accent);
+    background: none;
+    cursor: pointer;
+    color: var(--accent);
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .btn-add:hover { background: var(--accent); color: white; }
+  .btn-add.added { background: var(--green); border-color: var(--green); color: white; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(28,26,23,0.65);
+    z-index: 200;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--white);
+    border-radius: 16px;
+    max-width: 560px;
+    width: 100%;
+    overflow: hidden;
+    margin: auto;
+  }
+  .modal-hero {
+    background: var(--warm);
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .modal-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+  }
+  .modal-hero .hero-emoji { position: relative; z-index: 1; }
+  .modal-body { padding: 1.5rem 1.75rem 2rem; }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin-bottom: 0.4rem;
+  }
+  .modal-desc { color: var(--muted); font-size: 13px; margin-bottom: 1.25rem; line-height: 1.6; }
+  .modal-section-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+    margin-top: 1.25rem;
+  }
+  .ingredient-list { list-style: none; }
+  .ingredient-list li {
+    padding: 5px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+  .ingredient-list li:last-child { border-bottom: none; }
+  .ingredient-list li::before { content: '·'; color: var(--accent); font-weight: 700; }
+  .steps-list { list-style: none; counter-reset: step; }
+  .steps-list li {
+    counter-increment: step;
+    padding: 8px 0 8px 2.5rem;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    line-height: 1.6;
+  }
+  .steps-list li:last-child { border-bottom: none; }
+  .steps-list li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-close {
+    display: block;
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .modal-close:hover { background: var(--warm); }
+
+  /* ORDER */
+  .order-intro {
+    background: var(--accent-light);
+    border: 1px solid #E5C4AF;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 13px;
+    color: var(--accent);
+    line-height: 1.6;
+  }
+  .order-list-wrap {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    min-height: 120px;
+    margin-bottom: 1rem;
+  }
+  .order-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .order-item:last-child { border-bottom: none; }
+  .order-item .order-emoji { font-size: 1.2rem; }
+  .order-item-name { flex: 1; }
+  .btn-remove {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: none;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .btn-remove:hover { background: #fee; border-color: #fbb; color: #c00; }
+  .empty-order {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
+    padding: 2rem 0;
+  }
+
+  /* SHOP */
+  .shop-controls { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .shop-controls button {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .shop-controls button:hover { background: var(--warm); color: var(--ink); }
+  .shop-controls button.primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .shop-controls button.primary:hover { opacity: 0.9; }
+  .shop-category { margin-bottom: 1.5rem; }
+  .shop-cat-title {
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  .shop-items { background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .shop-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .shop-item:last-child { border-bottom: none; }
+  .shop-item:hover { background: var(--cream); }
+  .shop-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+  .shop-item label { flex: 1; cursor: pointer; }
+  .shop-item.checked label { text-decoration: line-through; color: var(--muted); }
+  .shop-amount { font-size: 12px; color: var(--muted); }
+  .copy-box {
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    font-size: 13px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    margin-top: 1rem;
+    display: none;
+  }
+  .copy-box.visible { display: block; }
+
+  /* ADD DISH FORM */
+  .add-dish-section {
+    background: var(--white);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+  .add-dish-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: var(--ink);
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .form-row.single { grid-template-columns: 1fr; }
+  .form-field { display: flex; flex-direction: column; gap: 4px; }
+  .form-field label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 500; }
+  .form-field input, .form-field textarea, .form-field select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    background: var(--cream);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .form-field input:focus, .form-field textarea:focus, .form-field select:focus {
+    border-color: var(--accent);
+  }
+  .form-field textarea { resize: vertical; min-height: 70px; }
+  .photo-upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--cream);
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .photo-upload-area:hover { border-color: var(--accent); color: var(--accent); }
+  .photo-upload-area input { display: none; }
+  .photo-preview { width: 100%; height: 100px; object-fit: cover; border-radius: 6px; display: none; margin-top: 8px; }
+  .btn-save-dish {
+    width: 100%;
+    padding: 10px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 12px;
+    transition: opacity 0.15s;
+  }
+  .btn-save-dish:hover { opacity: 0.9; }
+
+  @media (max-width: 500px) {
+    .dish-grid { grid-template-columns: 1fr 1fr; }
+    .dish-icon { height: 80px; font-size: 2rem; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Домашняя кухня</div>
+  <h1>Наше меню</h1>
+  <p>Рецепты, список продуктов и заказ ужина</p>
+</header>
+
+<nav id="nav">
+  <button class="active" onclick="showPage('zavtrak',this)">🥪 Завтраки</button>
+  <button onclick="showPage('soup',this)">🍲 Супы</button>
+  <button onclick="showPage('main',this)">🍗 Основные</button>
+  <button onclick="showPage('pasta',this)">🍝 Паста</button>
+  <button onclick="showPage('funchoza',this)">🍜 Фунчоза</button>
+  <button onclick="showPage('snacks',this)">🍟 Снеки</button>
+  <button onclick="showPage('airfryer',this)">🌬️ Аэрогриль</button>
+  <button onclick="showPage('tortilla',this)">🌯 Тортильи</button>
+  <button onclick="showPage('sushi',this)">🍣 Суши</button>
+  <button onclick="showPage('salad',this)">🥗 Салаты</button>
+  <button onclick="showPage('dessert',this)">🍰 Десерты</button>
+  <button onclick="showPage('order',this)">📋 Заказ</button>
+  <button onclick="showPage('shop',this)">🛒 Продукты</button>
+  <button onclick="showPage('add',this)">➕ Добавить</button>
+</nav>
+
+<main>
+
+<!-- ЗАВТРАКИ -->
+<div id="zavtrak" class="page active">
+  <div class="section-title">Тосты с красной рыбой</div>
+  <div class="dish-grid" id="grid-zavtrak-1"></div>
+  <div class="section-title">Из сэндвичницы</div>
+  <div class="dish-grid" id="grid-zavtrak-2"></div>
+  <div class="section-title">Гренки и блины</div>
+  <div class="dish-grid" id="grid-zavtrak-3"></div>
+</div>
+
+<!-- СУПЫ -->
+<div id="soup" class="page">
+  <div class="section-title">Рыбные</div>
+  <div class="dish-grid" id="grid-soup-1"></div>
+  <div class="section-title">Грибные и сливочные</div>
+  <div class="dish-grid" id="grid-soup-2"></div>
+  <div class="section-title">Мясные и другие</div>
+  <div class="dish-grid" id="grid-soup-3"></div>
+</div>
+
+<!-- ОСНОВНЫЕ -->
+<div id="main" class="page">
+  <div class="section-title">Курица</div>
+  <div class="dish-grid" id="grid-main-1"></div>
+  <div class="section-title">Рыба</div>
+  <div class="dish-grid" id="grid-main-2"></div>
+  <div class="section-title">Говядина и фарш</div>
+  <div class="dish-grid" id="grid-main-3"></div>
+  <div class="section-title">Бургеры и тортильи</div>
+  <div class="dish-grid" id="grid-main-4"></div>
+  <div class="section-title">Морепродукты</div>
+  <div class="dish-grid" id="grid-main-5"></div>
+  <div class="section-title">Овощи и закуски</div>
+  <div class="dish-grid" id="grid-main-6"></div>
+</div>
+
+<!-- ПАСТА -->
+<div id="pasta" class="page">
+  <div class="section-title">Итальянская классика</div>
+  <div class="dish-grid" id="grid-pasta-1"></div>
+  <div class="section-title">Сливочные соусы</div>
+  <div class="dish-grid" id="grid-pasta-2"></div>
+  <div class="section-title">Запечённая паста</div>
+  <div class="dish-grid" id="grid-pasta-3"></div>
+</div>
+
+<!-- ФУНЧОЗА -->
+<div id="funchoza" class="page">
+  <div class="section-title">Тёплая фунчоза</div>
+  <div class="dish-grid" id="grid-funchoza-1"></div>
+  <div class="section-title">Холодная фунчоза (салат)</div>
+  <div class="dish-grid" id="grid-funchoza-2"></div>
+</div>
+
+<!-- СНЕКИ -->
+<div id="snacks" class="page">
+  <div class="section-title">Картофель</div>
+  <div class="dish-grid" id="grid-snacks-1"></div>
+  <div class="section-title">Луковые кольца и нагетсы</div>
+  <div class="dish-grid" id="grid-snacks-2"></div>
+  <div class="section-title">В аэрогриле</div>
+  <div class="dish-grid" id="grid-snacks-3"></div>
+</div>
+
+<!-- АЭРОГРИЛЬ -->
+<div id="airfryer" class="page">
+  <div class="section-title">Курица</div>
+  <div class="dish-grid" id="grid-airfryer-1"></div>
+  <div class="section-title">Рыба и морепродукты</div>
+  <div class="dish-grid" id="grid-airfryer-2"></div>
+  <div class="section-title">Овощи и закуски</div>
+  <div class="dish-grid" id="grid-airfryer-3"></div>
+  <div class="section-title">Сыры и выпечка</div>
+  <div class="dish-grid" id="grid-airfryer-4"></div>
+</div>
+
+<!-- ТОРТИЛЬИ -->
+<div id="tortilla" class="page">
+  <div class="section-title">С курицей</div>
+  <div class="dish-grid" id="grid-tortilla-1"></div>
+  <div class="section-title">С рыбой и морепродуктами</div>
+  <div class="dish-grid" id="grid-tortilla-2"></div>
+  <div class="section-title">С мясом и колбасой</div>
+  <div class="dish-grid" id="grid-tortilla-3"></div>
+  <div class="section-title">Суши-тортильи и пицца</div>
+  <div class="dish-grid" id="grid-tortilla-4"></div>
+</div>
+
+<!-- СУШИ -->
+<div id="sushi" class="page">
+  <div class="section-title">Рис и основы</div>
+  <div class="dish-grid" id="grid-sushi-1"></div>
+  <div class="section-title">Роллы</div>
+  <div class="dish-grid" id="grid-sushi-2"></div>
+  <div class="section-title">Суши-блюда</div>
+  <div class="dish-grid" id="grid-sushi-3"></div>
+</div>
+
+<!-- САЛАТЫ -->
+<div id="salad" class="page">
+  <div class="section-title">Свежие и лёгкие</div>
+  <div class="dish-grid" id="grid-salad-1"></div>
+  <div class="section-title">С рыбой и мясом</div>
+  <div class="dish-grid" id="grid-salad-2"></div>
+  <div class="section-title">Классика</div>
+  <div class="dish-grid" id="grid-salad-3"></div>
+</div>
+
+<!-- ДЕСЕРТЫ -->
+<div id="dessert" class="page">
+  <div class="section-title">Выпечка</div>
+  <div class="dish-grid" id="grid-dessert-1"></div>
+  <div class="section-title">Без духовки</div>
+  <div class="dish-grid" id="grid-dessert-2"></div>
+</div>
+
+<!-- ЗАКАЗ -->
+<div id="order" class="page">
+  <div class="order-intro">
+    Выбери блюда из меню — нажми «+ В заказ» на любой карточке. Здесь увидишь список и сможешь скопировать его или распечатать.
+  </div>
+  <div class="order-list-wrap" id="order-list">
+    <div class="empty-order" id="order-empty">Пока ничего не выбрано. Зайди в разделы меню и нажми «+ В заказ».</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn-recipe" style="padding:10px 20px;border-radius:8px;font-size:13px;" onclick="copyOrder()">📋 Скопировать список</button>
+    <button class="btn-recipe" style="padding:10px 20px;border-radius:8px;font-size:13px;" onclick="clearOrder()">🗑 Очистить</button>
+    <button class="btn-recipe" style="padding:10px 20px;border-radius:8px;font-size:13px;" onclick="window.print()">🖨 Распечатать</button>
+  </div>
+</div>
+
+<!-- СПИСОК ПРОДУКТОВ -->
+<div id="shop" class="page">
+  <div class="shop-controls">
+    <button class="primary" onclick="copyShopList()">📋 Скопировать список</button>
+    <button onclick="checkAll(false)">Снять все галочки</button>
+  </div>
+  <div id="shop-categories"></div>
+  <div class="copy-box" id="copy-box"></div>
+</div>
+
+<!-- ДОБАВИТЬ БЛЮДО -->
+<div id="add" class="page">
+  <div class="section-title" style="margin-top:0">Добавить своё блюдо</div>
+  <div class="add-dish-section">
+    <h3>Новое блюдо</h3>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Название блюда *</label>
+        <input type="text" id="new-name" placeholder="Паста с лисичками">
+      </div>
+      <div class="form-field">
+        <label>Эмодзи</label>
+        <input type="text" id="new-emoji" placeholder="🍝" maxlength="4">
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-field">
+        <label>Краткое описание</label>
+        <input type="text" id="new-desc" placeholder="Нежные лисички в сливочном соусе с тимьяном">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Раздел меню</label>
+        <select id="new-section">
+          <option value="zavtrak-1">Завтраки — Тосты с рыбой</option>
+          <option value="zavtrak-2">Завтраки — Из сэндвичницы</option>
+          <option value="zavtrak-3">Завтраки — Гренки и блины</option>
+          <option value="soup-1">Супы — Рыбные</option>
+          <option value="soup-2">Супы — Грибные/сливочные</option>
+          <option value="soup-3">Супы — Мясные и другие</option>
+          <option value="main-1">Основные — Курица</option>
+          <option value="main-2">Основные — Рыба</option>
+          <option value="main-3">Основные — Говядина</option>
+          <option value="main-4">Основные — Бургеры/тортильи</option>
+          <option value="main-5">Основные — Морепродукты</option>
+          <option value="main-6">Основные — Овощи</option>
+          <option value="pasta-1">Паста — Классика</option>
+          <option value="pasta-2">Паста — Сливочные</option>
+          <option value="pasta-3">Паста — Запечённая</option>
+          <option value="funchoza-1">Фунчоза — Тёплая</option>
+          <option value="funchoza-2">Фунчоза — Салат</option>
+          <option value="snacks-1">Снеки — Картофель</option>
+          <option value="snacks-2">Снеки — Кольца и нагетсы</option>
+          <option value="airfryer-1">Аэрогриль — Курица</option>
+          <option value="airfryer-2">Аэрогриль — Рыба/морепродукты</option>
+          <option value="airfryer-3">Аэрогриль — Овощи</option>
+          <option value="airfryer-4">Аэрогриль — Сыры/выпечка</option>
+          <option value="tortilla-1">Тортильи — С курицей</option>
+          <option value="tortilla-2">Тортильи — С рыбой</option>
+          <option value="tortilla-3">Тортильи — С мясом</option>
+          <option value="tortilla-4">Тортильи — Суши/пицца</option>
+          <option value="sushi-1">Суши — Рис и основы</option>
+          <option value="sushi-2">Суши — Роллы</option>
+          <option value="sushi-3">Суши — Суши-блюда</option>
+          <option value="salad-1">Салаты — Свежие</option>
+          <option value="salad-2">Салаты — С рыбой/мясом</option>
+          <option value="salad-3">Салаты — Классика</option>
+          <option value="dessert-1">Десерты — Выпечка</option>
+          <option value="dessert-2">Десерты — Без духовки</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Метка</label>
+        <select id="new-tag">
+          <option value="quick">⚡ Быстро</option>
+          <option value="special">⭐ Необычное</option>
+          <option value="airfryer">💨 Аэрогриль</option>
+          <option value="freeze">❄️ В морозилку</option>
+          <option value="sushi">🍣 Суши</option>
+          <option value="tortilla">🌯 Тортилья</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-field">
+        <label>Ингредиенты (каждый с новой строки)</label>
+        <textarea id="new-ing" placeholder="Мука — 200 г&#10;Яйца — 2 шт&#10;Молоко — 150 мл"></textarea>
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-field">
+        <label>Шаги приготовления (каждый с новой строки)</label>
+        <textarea id="new-steps" placeholder="Смешать муку с яйцами.&#10;Добавить молоко и взбить.&#10;Жарить на среднем огне."></textarea>
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-field">
+        <label>Фотография блюда</label>
+        <div class="photo-upload-area" onclick="document.getElementById('new-photo-input').click()">
+          <div>📷 Нажми, чтобы выбрать фото</div>
+          <input type="file" id="new-photo-input" accept="image/*" onchange="previewNewPhoto(this)">
+          <img id="new-photo-preview" class="photo-preview">
+        </div>
+      </div>
+    </div>
+    <button class="btn-save-dish" onclick="saveNewDish()">✓ Добавить в меню</button>
+  </div>
+
+  <div class="section-title">Как добавить фото к уже существующему блюду</div>
+  <div style="background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.25rem 1.5rem;font-size:13px;color:var(--muted);line-height:1.8;">
+    Наведи мышку на любую карточку блюда — появится кнопка <strong style="color:var(--ink)">📷 Фото</strong> в левом нижнем углу изображения. Нажми её и выбери файл с фотографией. Фото сохраняется только для текущей сессии — при обновлении страницы вернётся эмодзи.
+  </div>
+</div>
+
+</main>
+
+<!-- RECIPE MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-content">
+    <div class="modal-hero" id="modal-hero">
+      <span class="hero-emoji" id="modal-emoji"></span>
+      <img id="modal-img" style="display:none" alt="">
+    </div>
+    <div class="modal-body">
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-desc" id="modal-desc"></div>
+      <div class="modal-section-label">Ингредиенты</div>
+      <ul class="ingredient-list" id="modal-ingredients"></ul>
+      <div class="modal-section-label">Приготовление</div>
+      <ol class="steps-list" id="modal-steps"></ol>
+      <button class="modal-close" onclick="closeModalBtn()">Закрыть</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const order = [];
+// Photo storage: key -> dataURL
+const photos = {};
+
+const DISHES = {
+  'zavtrak-1': [
+    { emoji:'🐟', name:'Тост с лососем и сливочным сыром', desc:'Ржаной хлеб, сливочный сыр, слабосолёный лосось, каперсы, укроп', tag:'quick', tagLabel:'5 мин',
+      ing:['Ржаной или тостовый хлеб — 2 куска','Сливочный сыр — 50 г','Слабосолёный лосось — 60 г','Каперсы — 1 ч.л.','Свежий укроп','Лимонный сок — несколько капель'],
+      steps:['Поджарить хлеб в тостере или сэндвичнице до хруста.','Намазать сливочный сыр толстым слоем.','Сложить ломтики лосося сверху небольшими складками.','Добавить каперсы, укроп, сбрызнуть лимонным соком.'] },
+    { emoji:'🐠', name:'Скандинавский тост с горчицей', desc:'Сливочный сыр, зернистая горчица, красная рыба, красный лук, лимон', tag:'special', tagLabel:'необычный',
+      ing:['Хлеб — 2 куска','Сливочный сыр — 40 г','Зернистая горчица — 1 ч.л.','Слабосолёная форель — 60 г','Красный лук — несколько тонких колец','Лимон — 1 кружок'],
+      steps:['Поджарить хлеб.','Смешать сливочный сыр с зернистой горчицей, намазать.','Разложить рыбу, кольца красного лука.','Украсить лимоном, подавать сразу.'] },
+    { emoji:'🥑', name:'Тост с авокадо и форелью', desc:'Авокадо с лимоном, ломтики форели, кунжут, хлопья чили', tag:'special', tagLabel:'необычный',
+      ing:['Хлеб — 2 куска','Авокадо — ½ шт','Лимонный сок — 1 ч.л.','Соль — щепотка','Форель слабосолёная — 50 г','Кунжут — 1 ч.л.','Хлопья чили — по вкусу'],
+      steps:['Размять авокадо вилкой с лимонным соком и солью.','Поджарить хлеб.','Намазать авокадо, разложить ломтики форели.','Посыпать кунжутом и хлопьями чили.'] },
+    { emoji:'🧀', name:'Горячий бутерброд с рыбой в сэндвичнице', desc:'Сыр внутри — греем. Рыбу кладём после — она нежная', tag:'quick', tagLabel:'7 мин',
+      ing:['Хлеб тостовый — 2 куска','Сливочный сыр — 40 г','Твёрдый сыр — 20 г','Лосось слабосолёный — 50 г','Укроп'],
+      steps:['Намазать хлеб сливочным сыром, положить твёрдый сыр внутрь.','Обжарить в сэндвичнице 3–4 минуты до расплавления.','Открыть, положить ломтики лосося и укроп сверху — не греть рыбу!','Подавать сразу.'] },
+  ],
+  'zavtrak-2': [
+    { emoji:'🥪', name:'С сыром и помидором', desc:'Классика — твёрдый сыр, свежий помидор, орегано', tag:'quick', tagLabel:'5 мин',
+      ing:['Хлеб тостовый — 2 куска','Твёрдый сыр — 40 г','Помидор — ½ шт','Орегано — щепотка'],
+      steps:['Нарезать помидор тонкими кружками, сыр пластинами.','Собрать бутерброд: хлеб — сыр — помидор — сыр — хлеб.','Готовить в сэндвичнице 3–4 минуты.','Подавать горячим.'] },
+    { emoji:'🥩', name:'С курицей и соусом', desc:'Остатки запечённой курицы, сыр, сметана', tag:'quick', tagLabel:'5 мин',
+      ing:['Хлеб тостовый — 2 куска','Куриное мясо (остатки) — 50 г','Твёрдый сыр — 30 г','Сметана или майонез — 1 ч.л.'],
+      steps:['Нарезать курицу, слегка примять.','Намазать хлеб сметаной, положить курицу и сыр.','Готовить в сэндвичнице 3–4 мин.'] },
+    { emoji:'🥓', name:'Крок-месье', desc:'Ветчина, твёрдый сыр, зернистая горчица — французская классика', tag:'special', tagLabel:'необычный',
+      ing:['Хлеб тостовый — 2 куска','Ветчина — 2 слайса','Твёрдый сыр (эмменталь/гауда) — 40 г','Зернистая горчица — 1 ч.л.','Масло сливочное — 5 г'],
+      steps:['Намазать хлеб горчицей.','Положить ветчину и сыр.','Снаружи хлеб смазать маслом.','Готовить в сэндвичнице 4 мин до золотой корочки.'] },
+    { emoji:'🫐', name:'Сладкий с творогом и джемом', desc:'Творог с ванилью и джемом — необычный сладкий вариант', tag:'quick', tagLabel:'5 мин',
+      ing:['Хлеб тостовый — 2 куска','Творог — 60 г','Сахар — 1 ч.л.','Ваниль — щепотка','Джем любой — 1 ч.л.'],
+      steps:['Смешать творог с сахаром и ванилью.','Намазать хлеб творогом, сверху ложка джема.','Готовить в сэндвичнице 3 мин.'] },
+  ],
+  'zavtrak-3': [
+    { emoji:'🍞', name:'Гренки в молоке и яйце', desc:'Французские тосты с корицей. Со сметаной или ягодами', tag:'quick', tagLabel:'10 мин',
+      ing:['Белый хлеб — 4 куска','Яйцо — 1 шт','Молоко — 4 ст.л.','Корица — щепотка','Сахар — 1 ч.л.','Масло для жарки'],
+      steps:['Взбить яйцо с молоком, сахаром и корицей.','Окунуть хлеб в смесь с обеих сторон.','Жарить на сковороде с маслом по 2 мин с каждой стороны.','Подавать со сметаной, джемом или свежими ягодами.'] },
+    { emoji:'🥞', name:'Тонкие блины', desc:'Классика на молоке. Со сметаной, вареньем или мёдом', tag:'quick', tagLabel:'30 мин',
+      ing:['Молоко — 500 мл','Яйца — 2 шт','Мука — 150 г','Сахар — 1 ст.л.','Соль — щепотка','Масло растительное — 2 ст.л.'],
+      steps:['Взбить яйца с сахаром и солью.','Добавить молоко, постепенно всыпать муку — без комков.','Добавить масло, дать тесту постоять 10 мин.','Жарить на горячей сковороде с минимумом масла.'] },
+    { emoji:'🧇', name:'Американские панкейки', desc:'Пышные, толстые — с разрыхлителем. С кленовым сиропом', tag:'special', tagLabel:'необычный',
+      ing:['Мука — 200 г','Молоко — 200 мл','Яйца — 2 шт','Разрыхлитель — 1,5 ч.л.','Сахар — 2 ст.л.','Соль — щепотка','Масло сливочное — 30 г'],
+      steps:['Смешать сухие ингредиенты отдельно, жидкие отдельно.','Соединить — не мешать до гладкости, комки допустимы.','Жарить на среднем огне по 2 мин — ждать пузырьков, перевернуть.','Подавать с кленовым сиропом или ягодами.'] },
+    { emoji:'🧀', name:'Сырники', desc:'Творог, мука, сахар — до золотой корочки. Со сметаной', tag:'quick', tagLabel:'20 мин',
+      ing:['Творог (сухой) — 400 г','Мука — 4 ст.л. + для обвалки','Яйцо — 1 шт','Сахар — 2 ст.л.','Соль — щепотка','Ваниль'],
+      steps:['Смешать творог, яйцо, сахар, соль, ваниль.','Добавить муку — тесто должно держать форму.','Слепить шайбы, обвалять в муке.','Жарить на масле по 3 мин с каждой стороны на среднем огне.'] },
+  ],
+
+  'soup-1': [
+    { emoji:'🐟', name:'Рыбья чорба', desc:'Балканский рыбный суп — паприка, томат, коренья. Насыщенный', tag:'special', tagLabel:'любимый',
+      ing:['Рыба (хек/треска) — 600 г','Лук — 2 шт','Морковь — 1 шт','Помидоры — 2 шт','Томатная паста — 2 ст.л.','Паприка — 1 ст.л.','Чеснок — 3 зуб.','Масло — 3 ст.л.','Соль, перец, лавровый лист','Зелень петрушки'],
+      steps:['Обжарить лук и морковь до мягкости. Добавить чеснок, паприку, томатную пасту — жарить 2 мин.','Добавить помидоры, тушить 5 мин.','Залить 1,5 л воды, довести до кипения.','Добавить рыбу кусками, варить 15 мин.','Посолить, добавить зелень. Подавать с хлебом.'] },
+    { emoji:'🍋', name:'Финский суп с лососем', desc:'Лохикейтто — картофель, сливки, красная рыба, укроп', tag:'special', tagLabel:'необычный',
+      ing:['Лосось — 400 г','Картофель — 3 шт','Морковь — 1 шт','Сливки 20% — 200 мл','Лук — 1 шт','Укроп — пучок','Бульон или вода — 1 л','Масло сливочное'],
+      steps:['Обжарить лук на масле. Добавить морковь и картофель кубиком.','Залить бульоном, варить 15 мин до мягкости картофеля.','Добавить кусочки лосося, влить сливки.','Варить ещё 5–7 мин — не кипятить после сливок.','Посолить, добавить укроп, подавать.'] },
+  ],
+  'soup-2': [
+    { emoji:'🍄', name:'Грибной крем-суп', desc:'Шампиньоны, сливки, чеснок — бархатный, нежный', tag:'quick', tagLabel:'30 мин',
+      ing:['Шампиньоны — 500 г','Лук — 1 шт','Чеснок — 2 зуб.','Сливки 20% — 150 мл','Масло — 2 ст.л.','Бульон — 500 мл','Соль, белый перец'],
+      steps:['Обжарить лук и чеснок до прозрачности.','Добавить нарезанные грибы, жарить до испарения жидкости.','Залить бульоном, варить 10 мин.','Пробить блендером до гладкости, влить сливки.','Прогреть, не доводя до кипения. Соль, белый перец.'] },
+    { emoji:'🧀', name:'Сырный суп', desc:'Плавленый сыр, картофель, морковь, куриный бульон', tag:'quick', tagLabel:'25 мин',
+      ing:['Плавленый сыр — 200 г','Картофель — 3 шт','Морковь — 1 шт','Лук — 1 шт','Куриный бульон — 1,2 л','Зелень','Масло'],
+      steps:['Обжарить лук и морковь.','Добавить картофель кубиком, залить бульоном. Варить 15 мин.','Натереть или нарезать плавленый сыр, добавить в суп.','Помешивать до полного растворения сыра.','Добавить зелень, подавать.'] },
+    { emoji:'🧅', name:'Французский луковый суп', desc:'Карамелизованный лук, говяжий бульон, тост с сыром', tag:'special', tagLabel:'необычный',
+      ing:['Лук репчатый — 800 г','Говяжий бульон — 1 л','Белое вино — 100 мл','Масло сливочное — 40 г','Тимьян — 2 веточки','Тостовый хлеб — 4 куска','Грюйер или эменталь — 80 г'],
+      steps:['Нарезать лук тонкими полукольцами. Жарить на масле 30–40 мин на малом огне до золотистого цвета.','Влить вино, выпарить. Добавить бульон и тимьян, варить 20 мин.','Разлить суп в жаропрочные миски.','Положить тост, засыпать тёртым сыром.','Запечь под грилем 3–5 мин до румяной корочки.'] },
+  ],
+  'soup-3': [
+    { emoji:'🍖', name:'Гороховый суп с копчёностями', desc:'Горох, копчёные рёбра, морковь, лук — сытный и ароматный', tag:'quick', tagLabel:'60 мин',
+      ing:['Горох колотый — 300 г','Копчёные куриные рёбра — 400 г','Картофель — 2 шт','Морковь — 1 шт','Лук — 1 шт','Соль, перец, лавровый лист'],
+      steps:['Замочить горох на 2 часа, промыть.','Варить рёбра 20 мин, достать. Добавить горох.','Через 20 мин — обжаренные лук и морковь, картофель.','Варить до мягкости гороха. Добавить мясо с рёбер.','Посолить, поперчить, подавать с сухариками.'] },
+    { emoji:'🥬', name:'Минестроне', desc:'Итальянский овощной суп с пастой и бобовыми', tag:'special', tagLabel:'необычный',
+      ing:['Цукини — 1 шт','Морковь — 1 шт','Лук — 1 шт','Помидоры — 2 шт','Фасоль консервированная — 1 банка','Паста мелкая — 80 г','Чеснок — 2 зуб.','Оливковое масло','Пармезан для подачи'],
+      steps:['Обжарить лук, морковь, чеснок в оливковом масле.','Добавить цукини и помидоры, тушить 5 мин.','Залить 1,5 л воды или бульона, варить 10 мин.','Добавить фасоль и пасту, варить ещё 8–10 мин.','Подавать с тёртым пармезаном.'] },
+    { emoji:'🍅', name:'Томатный суп-крем', desc:'Запечённые томаты, базилик, чеснок — нежный и яркий', tag:'special', tagLabel:'необычный',
+      ing:['Помидоры — 800 г','Чеснок — 4 зуб.','Лук — 1 шт','Сливки — 100 мл','Оливковое масло','Базилик свежий','Соль, сахар, перец'],
+      steps:['Помидоры и чеснок разложить на противень, сбрызнуть маслом, запечь при 200°C 25 мин.','Обжарить лук. Добавить запечённые томаты с чесноком.','Пробить блендером, влить сливки.','Посолить, добавить щепотку сахара.','Подавать с базиликом и гренками.'] },
+  ],
+
+  'main-1': [
+    { emoji:'🍗', name:'Курица в аэрогриле с паприкой', desc:'Бёдра в маринаде из паприки и йогурта — хрустящая корочка', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Куриные бёдра — 4 шт','Йогурт натуральный — 3 ст.л.','Паприка — 1 ст.л.','Чеснок — 3 зуб.','Соль, перец, орегано','Масло — 1 ст.л.'],
+      steps:['Смешать йогурт, паприку, чеснок, масло, специи.','Обмазать курицу, мариновать 30 мин (или ночь).','Разогреть аэрогриль до 200°C.','Готовить 25–30 мин, перевернув на полпути.'] },
+    { emoji:'🫕', name:'Чахохбили', desc:'Грузинская курица в томатах с зеленью и специями', tag:'special', tagLabel:'необычный',
+      ing:['Курица — 1 кг (кусками)','Помидоры — 3 шт','Лук — 2 шт','Чеснок — 4 зуб.','Кинза и петрушка — по пучку','Хмели-сунели — 1 ч.л.','Масло'],
+      steps:['Обжарить кусочки курицы без масла до золотистого цвета.','Добавить лук, жарить 5 мин. Добавить помидоры и чеснок.','Тушить под крышкой 30 мин.','Добавить специи и зелень за 5 мин до конца.','Подавать с лавашом или рисом.'] },
+    { emoji:'🐔', name:'Курица с грибами в сливочном соусе', desc:'Бёдра, шампиньоны, сливки — в одной сковороде', tag:'quick', tagLabel:'30 мин',
+      ing:['Куриные бёдра — 4 шт','Шампиньоны — 300 г','Сливки 20% — 200 мл','Чеснок — 2 зуб.','Лук — 1 шт','Масло, соль, тимьян'],
+      steps:['Обжарить курицу до корочки, убрать.','В той же сковороде — лук, грибы, чеснок. Жарить 7 мин.','Влить сливки, добавить тимьян, довести до кипения.','Вернуть курицу. Тушить 15–20 мин.'] },
+    { emoji:'🍯', name:'Крылышки в соусе терияки', desc:'Хрустящие крылышки в сладком японском соусе', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Куриные крылышки — 600 г','Соевый соус — 4 ст.л.','Мёд — 2 ст.л.','Чеснок — 2 зуб.','Имбирь тёртый — 1 ч.л.','Кунжут для подачи'],
+      steps:['Смешать соевый соус, мёд, чеснок, имбирь.','Мариновать крылышки 2 часа.','Готовить в аэрогриле при 200°C 20–22 мин, перевернув.','Смазать остатками маринада, готовить ещё 5 мин.','Посыпать кунжутом.'] },
+    { emoji:'🌿', name:'Куриный шашлык в аэрогриле', desc:'Маринованные кусочки филе на шпажках — быстро и сочно', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Куриное филе — 500 г','Лук — 1 шт','Кефир — 100 мл','Паприка, куркума, соль','Деревянные шпажки'],
+      steps:['Нарезать филе кубиками 3 см.','Мариновать в кефире со специями 1 час.','Нанизать на шпажки.','Готовить в аэрогриле при 190°C 12–15 мин.'] },
+  ],
+  'main-2': [
+    { emoji:'🐡', name:'Рыба в аэрогриле с лимоном', desc:'Хек или треска — маринад из лимона и трав', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Рыба (хек/треска) — 600 г','Лимон — 1 шт','Чеснок — 2 зуб.','Оливковое масло — 2 ст.л.','Тимьян, петрушка','Соль, перец'],
+      steps:['Рыбу промыть, обсушить.','Смешать масло, лимонный сок, чеснок, травы.','Обмазать рыбу, мариновать 20 мин.','Готовить в аэрогриле при 200°C 12–15 мин.'] },
+    { emoji:'🍅', name:'Рыба под маринадом', desc:'Жареная рыба под томатно-морковным маринадом', tag:'special', tagLabel:'необычный',
+      ing:['Рыба — 600 г','Морковь — 2 шт','Лук — 2 шт','Томатная паста — 2 ст.л.','Уксус — 1 ст.л.','Сахар — 1 ч.л.','Масло, соль, перец'],
+      steps:['Обвалять рыбу в муке, обжарить.','Приготовить маринад: обжарить морковь и лук, добавить томатную пасту, уксус, сахар, 100 мл воды.','Залить рыбу горячим маринадом.','Дать остыть — ставить в холодильник на ночь.'] },
+    { emoji:'🫙', name:'Рыбные котлеты', desc:'Из фарша трески с луком — сочные, нежные. Можно заморозить', tag:'freeze', tagLabel:'в морозилку',
+      ing:['Треска (филе) — 600 г','Лук — 1 шт','Хлеб белый — 2 куска','Яйцо — 1 шт','Молоко — 50 мл','Соль, белый перец'],
+      steps:['Рыбу и лук перекрутить через мясорубку или в блендере.','Хлеб замочить в молоке, отжать. Добавить в фарш.','Вмешать яйцо, соль, перец.','Формировать котлеты, жарить по 4 мин с каждой стороны.'] },
+    { emoji:'🐟', name:'Рыба по-гречески', desc:'Запечённая рыба с оливками, томатами и фетой', tag:'special', tagLabel:'необычный',
+      ing:['Рыба — 600 г','Помидоры — 2 шт','Оливки — 50 г','Фета — 80 г','Чеснок — 2 зуб.','Оливковое масло','Орегано'],
+      steps:['Выложить рыбу в форму.','Разложить нарезанные помидоры, оливки, чеснок.','Посыпать орегано, сбрызнуть маслом.','Запечь при 190°C 20 мин.','Покрошить фету сверху за 5 мин до конца.'] },
+    { emoji:'🍋', name:'Лосось с лимоном в аэрогриле', desc:'Стейки лосося с лимоном и зеленью — готово за 10 минут', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Стейки лосося — 2 шт','Лимон — ½ шт','Оливковое масло — 1 ст.л.','Соль, укроп'],
+      steps:['Смазать стейки маслом, посолить.','Выложить кружочки лимона сверху.','Готовить в аэрогриле при 180°C 8–10 мин.','Подавать с рукколой или овощами.'] },
+    { emoji:'🐠', name:'Форель целиком в аэрогриле', desc:'Форель с лимоном и зеленью — праздничное блюдо без хлопот', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Форель — 1 шт (400–500 г)','Лимон — 1 шт','Петрушка, укроп','Оливковое масло','Соль, перец'],
+      steps:['Промыть форель, обсушить. Сделать надрезы по бокам.','Натереть солью снаружи и внутри.','Вложить внутрь веточки зелени и дольки лимона.','Готовить в аэрогриле при 180°C 18–20 мин.'] },
+  ],
+  'main-3': [
+    { emoji:'🍔', name:'Домашние котлеты', desc:'Говяжий фарш, лук, чеснок — делать двойную порцию в морозилку', tag:'freeze', tagLabel:'в морозилку',
+      ing:['Говяжий фарш — 600 г','Лук — 1 шт','Чеснок — 2 зуб.','Хлеб — 2 куска','Молоко — 50 мл','Яйцо — 1 шт','Соль, перец'],
+      steps:['Хлеб замочить в молоке, отжать.','Смешать фарш, хлеб, лук, чеснок, яйцо, соль.','Вымешать руками 5 мин.','Формировать котлеты, жарить по 5 мин с каждой стороны.'] },
+    { emoji:'🥩', name:'Говядина тушёная с овощами', desc:'Кусок говядины долго тушится — само готовится', tag:'quick', tagLabel:'90 мин',
+      ing:['Говядина — 600 г','Морковь — 2 шт','Лук — 2 шт','Томатная паста — 2 ст.л.','Чеснок — 3 зуб.','Вода — 300 мл','Лавровый лист, тимьян','Масло, соль'],
+      steps:['Нарезать говядину кубиками 3 см, обжарить до корочки.','Добавить лук, морковь, чеснок. Жарить 5 мин.','Добавить томатную пасту, воду, специи.','Тушить на малом огне под крышкой 60–70 мин.'] },
+    { emoji:'🫕', name:'Бефстроганов', desc:'Тонкие полоски говядины в сметанном соусе с луком', tag:'special', tagLabel:'необычный',
+      ing:['Говяжья вырезка — 500 г','Лук — 2 шт','Сметана — 150 г','Мука — 1 ст.л.','Бульон — 100 мл','Масло, соль, перец'],
+      steps:['Нарезать говядину полосками поперёк волокон.','Обжарить быстро на сильном огне по 1 мин — убрать.','В той же сковороде обжарить лук. Добавить муку, жарить 1 мин.','Влить бульон и сметану, тушить 5 мин.','Вернуть мясо, прогреть 2 мин. Подавать с гречкой.'] },
+    { emoji:'🎿', name:'Фрикадельки в томатном соусе', desc:'Говяжий фарш, нежный томатный соус — подавать с пастой или рисом', tag:'freeze', tagLabel:'в морозилку',
+      ing:['Говяжий фарш — 500 г','Лук — 1 шт','Яйцо — 1 шт','Помидоры — 400 г (или консервированные)','Чеснок — 2 зуб.','Базилик, соль, перец'],
+      steps:['Смешать фарш, лук, яйцо, соль. Скатать шарики 3 см.','Обжарить фрикадельки до корочки — убрать.','Обжарить чеснок, добавить томаты. Тушить 5 мин.','Вернуть фрикадельки, тушить в соусе 20 мин.'] },
+    { emoji:'🥔', name:'Мясо по-французски', desc:'Говядина, лук, майонез, сыр — запечь в аэрогриле или духовке', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Говядина — 500 г (нарезать)','Лук — 2 шт','Майонез — 4 ст.л.','Твёрдый сыр — 150 г','Помидор — 2 шт','Соль, перец'],
+      steps:['Отбить мясо, посолить и поперчить.','Выложить в форму. Сверху кольца лука, кружки помидоров.','Намазать майонезом, засыпать тёртым сыром.','Запекать при 180°C 30–35 мин до золотистого сыра.'] },
+    { emoji:'🍢', name:'Люля-кебаб в аэрогриле', desc:'Фарш со специями на шпажках — сочный и ароматный', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Фарш (говяжий или смешанный) — 500 г','Лук — 1 шт','Кинза — пучок','Паприка — 1 ч.л.','Зира — ½ ч.л.','Соль, перец'],
+      steps:['Лук натереть, отжать лишний сок. Смешать с фаршем и специями.','Вымешивать фарш 5–7 мин — должен стать липким.','Нанизать на плоские шпажки, формируя колбаску.','Готовить в аэрогриле при 190°C 15 мин.'] },
+  ],
+  'main-4': [
+    { emoji:'🍔', name:'Домашний бургер классический', desc:'Котлета из говяжьего фарша, булка, сыр, соусы', tag:'quick', tagLabel:'25 мин',
+      ing:['Говяжий фарш — 300 г','Бургерные булки — 2 шт','Сыр чеддер — 2 ломтика','Помидор, листья салата','Лук красный','Маринованные огурцы','Кетчуп, горчица'],
+      steps:['Сформировать котлеты 150 г, слегка придавить по центру.','Жарить на сильном огне по 3–4 мин с каждой стороны.','За 1 мин до конца положить сыр, накрыть крышкой.','Поджарить булки. Собрать бургер.'] },
+    { emoji:'🌮', name:'Тортилья с ветчиной и сыром', desc:'Тортилья, ветчина, сыр, овощи — завернуть и обжарить', tag:'quick', tagLabel:'10 мин',
+      ing:['Тортилья — 2 шт','Ветчина — 80 г','Твёрдый сыр — 60 г','Помидор — 1 шт','Листья салата','Сметана или майонез'],
+      steps:['Намазать тортилью сметаной.','Выложить ветчину, сыр, помидор, салат.','Завернуть плотно.','Обжарить на сухой сковороде по 2 мин с каждой стороны.'] },
+    { emoji:'🌯', name:'Тортилья с курицей', desc:'Запечённая курица, авокадо, свежие овощи, соус', tag:'quick', tagLabel:'15 мин',
+      ing:['Тортилья — 2 шт','Куриное филе — 200 г','Авокадо — ½ шт','Помидор — 1 шт','Листья салата','Лайм','Сметана, соль, куркума'],
+      steps:['Филе нарезать, обжарить с куркумой и солью.','Авокадо размять с лаймом и солью.','Намазать тортилью авокадо.','Выложить курицу, помидор, салат. Завернуть.'] },
+    { emoji:'🍔', name:'Бургер с рыбой', desc:'Котлета из трески, соус тартар, каперсы, руккола', tag:'special', tagLabel:'необычный',
+      ing:['Треска (филе) — 300 г','Панировочные сухари — 4 ст.л.','Яйцо — 1 шт','Булки для бургера — 2 шт','Майонез — 2 ст.л.','Маринованные огурцы — 1 шт','Каперсы — 1 ч.л.','Руккола'],
+      steps:['Пробить рыбу в блендере, смешать с яйцом и сухарями. Посолить.','Сформировать котлеты, жарить по 4 мин с каждой стороны.','Соус: майонез + рубленые огурцы + каперсы.','Собрать бургер с рукколой.'] },
+  ],
+  'main-5': [
+    { emoji:'🦐', name:'Креветки в сливочно-чесночном соусе', desc:'Нежные креветки в соусе из сливок и пармезана за 10 минут', tag:'quick', tagLabel:'10 мин',
+      ing:['Креветки — 500 г','Сливки 20% — 200 мл','Чеснок — 3 зуб.','Пармезан — 30 г','Масло сливочное — 20 г','Петрушка, соль, перец'],
+      steps:['Обжарить чеснок на сливочном масле 1–2 мин.','Добавить сливки, довести до лёгкого кипения.','Всыпать тёртый пармезан, помешать до растворения.','Выложить креветки, тушить 5 мин.','Подавать с зеленью, с хлебом или пастой.'] },
+    { emoji:'🍤', name:'Чесночные креветки в аэрогриле', desc:'Маринованные в лимоне и паприке — хрустящие и ароматные', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Креветки — 500 г','Чеснок — 3 зуб.','Оливковое масло — 2 ст.л.','Паприка — 1 ч.л.','Лимон — ½ шт','Соль'],
+      steps:['Смешать масло, чеснок, паприку, лимонный сок.','Замариновать креветки на 20 мин.','Готовить в аэрогриле при 190°C 6–8 мин.','Подавать с зеленью и дольками лимона.'] },
+    { emoji:'🥓', name:'Креветки в беконе', desc:'Очищенные креветки, завёрнутые в полоску бекона', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Очищенные креветки — 300 г','Бекон — 150 г (тонкие полоски)','Зубочистки для фиксации'],
+      steps:['Завернуть каждую креветку в полоску бекона, зафиксировать зубочисткой.','Разложить в один слой.','Готовить в аэрогриле при 190°C 8–10 мин.','Подавать горячими с соусом.'] },
+  ],
+  'main-6': [
+    { emoji:'🍆', name:'Рулетики из баклажанов с сыром', desc:'Баклажанные пластины с творожным сыром, чесноком и укропом', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Баклажаны — 2 шт','Творожный сыр — 150 г','Чеснок — 2 зуб.','Укроп — пучок','Соль, перец'],
+      steps:['Нарезать баклажаны вдоль пластинами 5 мм. Посолить на 10 мин, промокнуть.','Готовить в аэрогриле при 180°C 8 мин — должны стать мягкими.','Смешать сыр с чесноком и укропом.','Выложить начинку на пластину, завернуть рулетиком.','Подавать охлаждёнными.'] },
+    { emoji:'🧆', name:'Баклажаны по-хацапели', desc:'Баклажан, томат, сулугуни, чеснок, зелень — запечённые в аэрогриле', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Баклажаны — 2 шт','Помидоры — 2 шт','Сулугуни или моцарелла — 150 г','Чеснок — 2 зуб.','Кинза, петрушка','Майонез или сметана — 2 ст.л.','Соль, перец'],
+      steps:['Нарезать баклажаны пластинами 5–7 мм. Посолить на 15 мин, промокнуть.','Обжарить или готовить в аэрогриле при 180°C 10 мин.','Смешать тёртый сыр, чеснок, зелень и майонез.','Выложить начинку на баклажаны, сверху кружочек помидора.','Запекать в аэрогриле при 180°C ещё 7–10 мин.'] },
+    { emoji:'🍄', name:'Шампиньоны с сыром в аэрогриле', desc:'Грибы, фаршированные сыром и чесноком — быстрая закуска', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Шампиньоны крупные — 500 г','Твёрдый сыр — 150 г','Чеснок — 2 зуб.','Сметана — 2 ст.л.','Соль, зелень'],
+      steps:['Удалить ножки из шляпок.','Смешать тёртый сыр, измельчённые ножки, чеснок и сметану.','Наполнить шляпки начинкой.','Готовить в аэрогриле при 180°C 10 мин.'] },
+    { emoji:'🥦', name:'Цветная капуста в специях', desc:'Соцветия в паприке и масле — хрустящий гарнир', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Цветная капуста — 500 г','Оливковое масло — 2 ст.л.','Паприка — 1 ч.л.','Чесночный порошок — ½ ч.л.','Соль'],
+      steps:['Разобрать капусту на соцветия.','Перемешать с маслом и специями.','Готовить в аэрогриле при 190°C 15 мин.','Подавать как гарнир или закуску.'] },
+  ],
+
+  'pasta-1': [
+    { emoji:'🥓', name:'Карбонара', desc:'Бекон, яичные желтки, пекорино — без сливок. Техника важна', tag:'special', tagLabel:'техника важна',
+      ing:['Спагетти — 200 г','Гуанчале или бекон — 100 г','Желтки — 3 шт','Пекорино или пармезан — 60 г','Чёрный перец — щедро'],
+      steps:['Отварить спагетти в солёной воде — сохранить 1 стакан воды от пасты.','Обжарить бекон без масла до хрустящего состояния.','Смешать желтки с тёртым сыром и перцем.','Снять пасту с огня, добавить бекон. Вылить яичную смесь, быстро перемешать.','Добавлять воду от пасты по ложке — соус должен быть кремовым.'] },
+    { emoji:'🍅', name:'Аматричана', desc:'Бекон, томаты, пекорино, чили — пряный томатный соус', tag:'quick', tagLabel:'25 мин',
+      ing:['Ригатони — 200 г','Бекон — 100 г','Помидоры (консервированные) — 400 г','Пекорино — 50 г','Чили — щепотка','Чеснок — 1 зуб.'],
+      steps:['Обжарить бекон до хруста. Добавить чеснок и чили.','Добавить томаты, тушить 15 мин.','Отварить пасту, сохранить воду.','Смешать пасту с соусом.','Подавать с тёртым пекорино.'] },
+    { emoji:'🧀', name:'Качо э пепе', desc:'Спагетти, пекорино, чёрный перец — три ингредиента', tag:'special', tagLabel:'техника важна',
+      ing:['Спагетти — 200 г','Пекорино романо — 80 г','Чёрный перец горошком — 1,5 ч.л.'],
+      steps:['Раздробить перец, обжарить на сухой сковороде 1 мин.','Отварить пасту, сохранить воду.','Добавить 100 мл воды от пасты к перцу.','Вмешать пасту, снять с огня. Добавить пекорино порциями.','Добавлять воду — соус должен обволакивать.'] },
+    { emoji:'🥩', name:'Болоньезе', desc:'Говяжий фарш, томаты, вино, коренья — долгое тушение', tag:'freeze', tagLabel:'соус — в морозилку',
+      ing:['Тальятелле — 200 г','Говяжий фарш — 300 г','Лук, морковь, сельдерей — по 1 шт','Томаты консервированные — 400 г','Красное вино — 100 мл','Молоко — 50 мл','Масло, соль'],
+      steps:['Обжарить лук, морковь, сельдерей мелким кубиком 10 мин.','Добавить фарш, жарить до румяного цвета.','Влить вино, выпарить. Добавить томаты и молоко.','Тушить 1,5–2 часа на малом огне.','Подавать с тальятелле и пармезаном.'] },
+    { emoji:'🌶', name:'Арrabbiata', desc:'Пенне, томаты, чеснок, острый чили — быстро и пряно', tag:'quick', tagLabel:'20 мин',
+      ing:['Пенне — 200 г','Помидоры консервированные — 400 г','Чеснок — 3 зуб.','Перец чили — 1–2 шт','Оливковое масло','Петрушка'],
+      steps:['Обжарить чеснок и чили в масле.','Добавить томаты, тушить 10–12 мин.','Отварить пасту.','Смешать с соусом, добавить петрушку.'] },
+  ],
+  'pasta-2': [
+    { emoji:'🐟', name:'Паста с лососем в сливочном соусе', desc:'Тальятелле, лосось, сливки, лимон, каперсы', tag:'quick', tagLabel:'20 мин',
+      ing:['Тальятелле — 200 г','Лосось (свежий или слабосолёный) — 200 г','Сливки 20% — 150 мл','Лимон — ½ шт','Каперсы — 1 ст.л.','Чеснок — 1 зуб.','Укроп'],
+      steps:['Обжарить чеснок в масле. Добавить кусочки лосося, жарить 3 мин.','Влить сливки, добавить лимонную цедру и каперсы.','Тушить 3–4 мин до загустения.','Смешать с пастой. Украсить укропом.'] },
+    { emoji:'🍄', name:'Паста с курицей и грибами', desc:'Фетучини, куриное филе, шампиньоны, пармезан', tag:'quick', tagLabel:'30 мин',
+      ing:['Фетучини — 200 г','Куриное филе — 200 г','Шампиньоны — 200 г','Сливки 20% — 150 мл','Пармезан — 40 г','Чеснок — 2 зуб.','Масло'],
+      steps:['Обжарить курицу кубиками, убрать.','Обжарить грибы с чесноком.','Влить сливки, добавить курицу. Тушить 5 мин.','Смешать с пастой. Добавить пармезан.'] },
+    { emoji:'🧀', name:'Паста с горгонзолой и грецким орехом', desc:'Пенне, голубой сыр, орехи, сливки — за 15 минут', tag:'special', tagLabel:'необычный',
+      ing:['Пенне — 200 г','Горгонзола — 80 г','Грецкие орехи — 40 г','Сливки — 100 мл','Пармезан','Перец'],
+      steps:['Обжарить орехи на сухой сковороде.','Нагреть сливки, растопить горгонзолу.','Смешать с варёной пастой.','Посыпать орехами и пармезаном.'] },
+  ],
+  'pasta-3': [
+    { emoji:'🫕', name:'Лазанья', desc:'Листы пасты, болоньезе, бешамель, пармезан', tag:'freeze', tagLabel:'можно заморозить',
+      ing:['Листы лазаньи — 12 шт','Болоньезе — 600 г','Молоко — 500 мл','Масло — 50 г','Мука — 50 г','Пармезан — 80 г','Мускатный орех'],
+      steps:['Приготовить соус бешамель: растопить масло, добавить муку, влить молоко, мешать до загустения.','Выкладывать слоями: соус — листы — болоньезе — бешамель.','Повторить 3–4 слоя, верх — бешамель и пармезан.','Запекать при 180°C 35–40 мин.','Дать отдохнуть 10 мин перед нарезкой.'] },
+    { emoji:'🧀', name:'Паста аль форно', desc:'Запечённая пенне с томатным соусом и сыром', tag:'quick', tagLabel:'45 мин',
+      ing:['Пенне — 200 г','Томатный соус — 400 г','Твёрдый сыр — 100 г','Моцарелла — 100 г','Чеснок, базилик','Оливковое масло'],
+      steps:['Отварить пасту до полуготовности.','Смешать с томатным соусом, чесноком, базиликом.','Выложить в форму, посыпать сырами.','Запечь при 200°C 20 мин до румяной корочки.'] },
+  ],
+
+  'funchoza-1': [
+    { emoji:'🍜', name:'Фунчоза с курицей по-азиатски', desc:'Стеклянная лапша, куриное филе, соевый соус, имбирь', tag:'quick', tagLabel:'20 мин',
+      ing:['Фунчоза — 150 г','Куриное филе — 200 г','Морковь — 1 шт','Перец болгарский — 1 шт','Соевый соус — 3 ст.л.','Чеснок — 2 зуб.','Имбирь — 1 ч.л.','Кунжутное масло — 1 ч.л.'],
+      steps:['Залить фунчозу кипятком на 5 мин, откинуть.','Обжарить курицу полосками. Добавить морковь, перец, чеснок, имбирь.','Жарить 5 мин. Добавить фунчозу и соевый соус.','Жарить ещё 2 мин. Сбрызнуть кунжутным маслом.'] },
+    { emoji:'🐄', name:'Фунчоза с говядиной и грибами', desc:'Тонкие полоски говядины, шиитаке, кунжутное масло', tag:'special', tagLabel:'необычный',
+      ing:['Фунчоза — 150 г','Говядина — 200 г','Шампиньоны — 150 г','Соевый соус — 3 ст.л.','Кунжутное масло — 1 ч.л.','Чеснок, имбирь','Зелёный лук'],
+      steps:['Залить фунчозу кипятком.','Обжарить говядину тонкими полосками на сильном огне.','Добавить грибы, чеснок, имбирь. Жарить 5 мин.','Добавить фунчозу, соевый соус, кунжутное масло.','Украсить зелёным луком.'] },
+    { emoji:'🌶', name:'Фунчоза с рыбой и кокосовым соусом', desc:'Кокосовое молоко, лайм, кинза — тайский стиль', tag:'special', tagLabel:'необычный',
+      ing:['Фунчоза — 150 г','Белая рыба — 300 г','Кокосовое молоко — 200 мл','Рыбный соус — 2 ст.л.','Лайм — 1 шт','Острый перец','Кинза'],
+      steps:['Залить фунчозу кипятком.','Обжарить рыбу кусочками.','Добавить кокосовое молоко, рыбный соус. Тушить 5 мин.','Добавить фунчозу, сок лайма. Украсить кинзой.'] },
+  ],
+  'funchoza-2': [
+    { emoji:'🥕', name:'Корейский салат с фунчозой', desc:'Морковь по-корейски, огурец, кунжут, соевый соус', tag:'quick', tagLabel:'15 мин',
+      ing:['Фунчоза — 150 г','Морковь — 1 шт','Огурец — 1 шт','Соевый соус — 3 ст.л.','Уксус рисовый — 1 ст.л.','Кунжутное масло — 1 ч.л.','Кунжут, чеснок'],
+      steps:['Залить фунчозу кипятком, остудить.','Морковь натереть по-корейски, огурец нарезать.','Смешать соус: соевый соус, уксус, масло, чеснок.','Смешать всё, дать настояться 30 мин.'] },
+    { emoji:'🦐', name:'Фунчоза с креветками', desc:'Отварные креветки, огурец, кунжутная заправка с лимоном', tag:'quick', tagLabel:'15 мин',
+      ing:['Фунчоза — 150 г','Креветки варёные — 150 г','Огурец — 1 шт','Кунжутное масло — 1 ч.л.','Соевый соус — 2 ст.л.','Лимон — ½ шт','Кунжут','Зелёный лук'],
+      steps:['Залить фунчозу кипятком, остудить, нарезать.','Смешать соус.','Соединить фунчозу, креветки, огурец.','Заправить, посыпать кунжутом и зелёным луком.'] },
+  ],
+
+  'snacks-1': [
+    { emoji:'🍟', name:'Картошка фри в аэрогриле', desc:'Хрустящая без фритюра — секрет в правильной сушке', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Картофель — 4 шт','Масло растительное — 1 ст.л.','Соль, паприка','Крахмал — 1 ч.л. (опционально)'],
+      steps:['Нарезать картофель брусочками. Замочить в холодной воде 30 мин.','Обсушить полотенцем тщательно — это ключ к хрусту.','Перемешать с маслом, солью и паприкой. Добавить крахмал.','Разложить в один слой в аэрогриле, 200°C, 20–25 мин. Встряхнуть в середине.'] },
+    { emoji:'🥔', name:'Картошка фри на сковороде', desc:'Классический фритюр — хрустящая корочка гарантирована', tag:'quick', tagLabel:'20 мин',
+      ing:['Картофель — 4 шт','Масло подсолнечное — 300 мл','Соль'],
+      steps:['Нарезать картофель брусочками, обсушить.','Нагреть масло до 180°C.','Жарить порциями по 5–6 мин до золотистого цвета.','Выложить на бумажное полотенце. Посолить сразу.'] },
+    { emoji:'🫒', name:'Картофельные дольки со специями', desc:'Дольки с кожурой, чеснок, паприка, розмарин', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Картофель молодой — 500 г','Масло оливковое — 2 ст.л.','Паприка — 1 ч.л.','Чеснок — 2 зуб.','Розмарин','Соль'],
+      steps:['Нарезать картофель дольками вместе с кожурой.','Перемешать с маслом и специями.','Готовить в аэрогриле при 200°C 22–25 мин.','Подавать с соусом.'] },
+    { emoji:'🧄', name:'Молодой картофель с чесноком', desc:'Целиком или половинками, укроп и чеснок — простой и вкусный гарнир', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Молодой картофель — 700 г','Оливковое масло — 2 ст.л.','Чеснок — 3 зуб.','Укроп — пучок','Соль'],
+      steps:['Картофель хорошо промыть, разрезать пополам.','Перемешать с маслом, чесноком, солью.','Готовить в аэрогриле при 200°C 20 мин.','Подавать с укропом.'] },
+  ],
+  'snacks-2': [
+    { emoji:'🧅', name:'Луковые кольца в пивном кляре', desc:'Воздушные и хрустящие — кляр на пиве', tag:'quick', tagLabel:'20 мин',
+      ing:['Лук репчатый крупный — 2 шт','Мука — 150 г','Пиво светлое — 150 мл','Яйцо — 1 шт','Соль','Масло для жарки'],
+      steps:['Нарезать лук кольцами 1 см, разобрать.','Замочить в молоке 10 мин — уберёт горечь.','Замешать кляр: мука + яйцо + пиво + соль.','Окунать кольца в кляр, жарить во фритюре 2–3 мин.'] },
+    { emoji:'🍗', name:'Куриные нагетсы домашние', desc:'Хрустящая панировка из сухарей, аэрогриль или сковорода', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Куриное филе — 400 г','Панировочные сухари — 100 г','Яйцо — 2 шт','Мука — 3 ст.л.','Паприка, чесночный порошок','Соль'],
+      steps:['Нарезать филе кусочками.','Обвалять в муке → окунуть в яйцо → обвалять в сухарях со специями.','Аэрогриль: 190°C, 15 мин, перевернуть в середине.','Или обжарить в масле по 3 мин с каждой стороны.'] },
+    { emoji:'🐟', name:'Рыбные нагетсы', desc:'Треска в хрустящей панировке — нежные внутри', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Треска — 400 г','Яйцо — 1 шт','Панировочные сухари — 80 г','Мука — 2 ст.л.','Лимонная цедра','Соль, белый перец'],
+      steps:['Нарезать рыбу кусочками, посолить.','Обвалять в муке → яйцо → сухари с цедрой.','Аэрогриль: 190°C, 12–14 мин.','Подавать с тартар-соусом.'] },
+    { emoji:'🧀', name:'Сырные шарики', desc:'Твёрдый сыр в панировке — тянутся нитями', tag:'quick', tagLabel:'20 мин',
+      ing:['Твёрдый сыр — 200 г','Яйцо — 1 шт','Мука — 2 ст.л.','Панировочные сухари — 80 г','Масло для жарки'],
+      steps:['Натереть сыр крупно. Слепить шарики.','Обвалять в муке → яйцо → сухари. Повторить 2 раза.','Заморозить 15 мин — так не растекутся.','Жарить во фритюре или в аэрогриле при 190°C 8 мин.'] },
+    { emoji:'🧀', name:'Слойки с сыром', desc:'Слоёное тесто с расплавленным сыром — простая выпечка за 15 минут', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Слоёное тесто — 250 г','Твёрдый сыр — 100 г','Яйцо для смазки'],
+      steps:['Раскатать тесто, нарезать полосками.','Положить кусочек сыра, завернуть или сложить.','Смазать яйцом.','Готовить в аэрогриле при 180°C 12–15 мин.'] },
+  ],
+  'snacks-3': [
+    { emoji:'🥧', name:'Пироги с капустой в аэрогриле', desc:'Дрожжевое тесто, тушёная капуста — сочные и пышные', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Дрожжевое тесто (готовое) — 500 г','Капуста — 400 г','Лук — 1 шт','Масло — 2 ст.л.','Соль, перец','Яйцо для смазки'],
+      steps:['Тушить капусту с луком 20 мин, остудить.','Раскатать тесто, вырезать кружки.','Положить начинку, слепить пироги.','Смазать яйцом. Аэрогриль: 180°C, 15–18 мин.'] },
+    { emoji:'🥩', name:'Пирожки с мясом в аэрогриле', desc:'Говяжий фарш с луком, золотая корочка', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Дрожжевое тесто — 500 г','Говяжий фарш — 300 г','Лук — 1 шт','Соль, перец','Яйцо'],
+      steps:['Обжарить фарш с луком. Остудить.','Раскатать тесто, вырезать кружки.','Положить начинку, залепить.','Смазать яйцом. Аэрогриль: 180°C, 15 мин.'] },
+    { emoji:'🍕', name:'Мини-пицца на лаваше', desc:'Тонкая основа, томатный соус, сыр и начинка — готова за 8 минут', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Тонкий лаваш — 2 шт','Томатный соус — 4 ст.л.','Моцарелла — 100 г','Колбаса или ветчина — 80 г','Орегано'],
+      steps:['Намазать лаваш томатным соусом.','Выложить начинку и сыр.','Готовить в аэрогриле при 180°C 7–8 мин.','Подавать горячей.'] },
+    { emoji:'🫓', name:'Хачапури из лаваша', desc:'Лаваш, сулугуни, яйцо — быстрая версия хачапури', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Тонкий лаваш — 2 шт','Сулугуни — 200 г','Яйца — 2 шт','Масло сливочное — 20 г'],
+      steps:['Натереть сулугуни. Выложить на лаваш, сложить конвертом.','Смазать маслом снаружи.','Готовить в аэрогриле при 180°C 8 мин.','Подавать горячим.'] },
+  ],
+
+  'airfryer-1': [
+    { emoji:'🍗', name:'Куриные бёдра в медово-горчичном маринаде', desc:'Сочные бёдра с хрустящей медовой корочкой', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Куриные бёдра — 6 шт','Мёд — 1 ст.л.','Горчица — 1 ст.л.','Соевый соус — 1 ст.л.','Чеснок, соль'],
+      steps:['Смешать маринад из мёда, горчицы и соевого соуса.','Обмазать бёдра, мариновать 30 мин.','Готовить в аэрогриле при 190°C 25 мин, перевернув в середине.','Подавать с зеленью или картофелем.'] },
+    { emoji:'🍗', name:'Куриные крылышки BBQ', desc:'Крылышки в соусе барбекю — хрустящие и сладковатые', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Куриные крылышки — 1 кг','Соус BBQ — 3 ст.л.','Соль, паприка'],
+      steps:['Перемешать крылышки с солью и паприкой.','Готовить при 190°C 20 мин.','Смазать соусом BBQ, готовить ещё 5 мин.','Подавать горячими.'] },
+    { emoji:'🍗', name:'Куриные голени со специями', desc:'Простые голени с чесноком и паприкой', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Куриные голени — 8 шт','Паприка — 1 ч.л.','Чеснок — 3 зуб.','Оливковое масло — 2 ст.л.','Соль'],
+      steps:['Смешать масло, чеснок, паприку, соль.','Обмазать голени.','Готовить при 190°C 25–30 мин, перевернув.','Подавать с салатом или картофелем.'] },
+    { emoji:'🍗', name:'Куриное филе в панировке', desc:'Хрустящая корочка из сухарей — как шницель, но без фритюра', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Куриное филе — 500 г','Яйцо — 2 шт','Панировочные сухари — 100 г','Паприка, соль'],
+      steps:['Отбить филе, посолить.','Обвалять в яйце, затем в сухарях с паприкой.','Готовить в аэрогриле при 190°C 12–15 мин.','Подавать с соусом и зеленью.'] },
+  ],
+  'airfryer-2': [
+    { emoji:'🐟', name:'Лосось с лимоном', desc:'Стейки лосося — минимум ингредиентов, максимум вкуса', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Стейки лосося — 2 шт','Лимон — ½ шт','Оливковое масло — 1 ст.л.','Соль, укроп'],
+      steps:['Смазать стейки маслом, посолить.','Выложить кружочки лимона сверху.','Готовить при 180°C 8–10 мин.','Украсить укропом.'] },
+    { emoji:'🦐', name:'Чесночные креветки в аэрогриле', desc:'Маринованные в лимоне и паприке — быстро и ароматно', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Креветки — 500 г','Чеснок — 3 зуб.','Оливковое масло — 2 ст.л.','Паприка','Лимон — ½ шт','Соль'],
+      steps:['Смешать масло, чеснок, паприку, лимонный сок.','Замариновать на 20 мин.','Готовить при 190°C 6–8 мин.','Подавать с зеленью.'] },
+    { emoji:'🥓', name:'Креветки в беконе', desc:'Сочетание нежных креветок с хрустящим беконом', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Очищенные креветки — 300 г','Бекон — 150 г'],
+      steps:['Завернуть каждую креветку в полоску бекона.','Зафиксировать зубочисткой.','Готовить при 190°C 8–10 мин.','Подавать горячими.'] },
+    { emoji:'🐠', name:'Форель целиком', desc:'Праздничная рыба с лимоном — готовится сама', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Форель — 1 шт (400–500 г)','Лимон — 1 шт','Петрушка, укроп','Оливковое масло','Соль'],
+      steps:['Промыть форель, обсушить. Сделать надрезы по бокам.','Натереть солью снаружи и внутри.','Вложить внутрь зелень и дольки лимона.','Готовить при 180°C 18–20 мин.'] },
+  ],
+  'airfryer-3': [
+    { emoji:'🍄', name:'Шампиньоны в беконе', desc:'Фаршированные сливочным сыром шампиньоны в беконе', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Крупные шампиньоны — 12 шт','Сливочный сыр — 100 г','Бекон — 200 г','Чеснок — 2 зуб.','Зелень'],
+      steps:['Удалить ножки из шляпок.','Смешать сыр с чесноком и зеленью. Наполнить шляпки.','Завернуть каждый гриб в полоску бекона.','Готовить при 180°C 12 мин.'] },
+    { emoji:'🥦', name:'Цветная капуста в специях', desc:'Хрустящие соцветия с паприкой — лучший гарнир', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Цветная капуста — 500 г','Масло — 2 ст.л.','Паприка — 1 ч.л.','Чесночный порошок','Соль'],
+      steps:['Разобрать на соцветия.','Перемешать с маслом и специями.','Готовить при 190°C 15 мин.','Подавать сразу.'] },
+    { emoji:'🥒', name:'Кабачки с пармезаном', desc:'Кружочки кабачка с сыром — хрустящие и лёгкие', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Кабачок — 2 шт','Пармезан — 50 г','Чеснок — 2 зуб.','Оливковое масло','Соль, орегано'],
+      steps:['Нарезать кабачки кружочками.','Смешать с маслом и чесноком.','Посыпать пармезаном.','Готовить при 180°C 12 мин.'] },
+    { emoji:'🍌', name:'Бананы с шоколадом', desc:'Карамелизованные бананы с тёплым шоколадом — десерт за 6 минут', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Бананы — 2 шт','Шоколад тёмный — 50 г','Корица — щепотка'],
+      steps:['Разрезать бананы пополам вдоль.','Разложить в аэрогриле.','Готовить при 180°C 5–6 мин.','Полить растопленным шоколадом.'] },
+  ],
+  'airfryer-4': [
+    { emoji:'🧀', name:'Камамбер с чесноком и розмарином', desc:'Запечённый мягкий сыр — подавать с багетом', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Камамбер — 1 головка (250 г)','Чеснок — 2 зуб.','Розмарин — 2 веточки','Оливковое масло — 1 ч.л.'],
+      steps:['Сделать надрезы на верхней корочке.','Вложить пластинки чеснока и розмарин.','Сбрызнуть маслом.','Готовить при 180°C 8 мин до мягкости.','Подавать с хрустящим багетом.'] },
+    { emoji:'🫓', name:'Хачапури из лаваша', desc:'Лаваш, сулугуни, яйцо — быстрая версия хачапури', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Тонкий лаваш — 2 шт','Сулугуни — 200 г','Яйца — 2 шт','Масло сливочное — 20 г'],
+      steps:['Натереть сулугуни. Выложить на лаваш, сложить конвертом.','Смазать маслом снаружи.','Готовить при 180°C 8 мин.','Подавать горячим.'] },
+    { emoji:'🍕', name:'Мини-пицца на лаваше', desc:'Тонкая быстрая пицца — за 8 минут', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Тонкий лаваш — 2 шт','Томатный соус — 4 ст.л.','Моцарелла — 100 г','Начинка по вкусу','Орегано'],
+      steps:['Намазать лаваш соусом.','Выложить начинку и сыр.','Готовить при 180°C 7–8 мин.','Подавать горячей, нарезав на кусочки.'] },
+    { emoji:'🥐', name:'Слойки с сыром', desc:'Готовое слоёное тесто и сыр — простая и вкусная выпечка', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Слоёное тесто — 250 г','Твёрдый сыр — 100 г','Яйцо для смазки'],
+      steps:['Раскатать тесто, нарезать полосками.','Положить кусочек сыра, завернуть.','Смазать яйцом.','Готовить при 180°C 12–15 мин.'] },
+  ],
+
+  'tortilla-1': [
+    { emoji:'🌯', name:'Цезарь-тортилья', desc:'Курица, айсберг, пармезан, соус Цезарь — классика в конверте', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Куриное филе жареное — 150 г','Листья айсберга','Пармезан — 30 г','Соус Цезарь — 2 ст.л.','Крутоны'],
+      steps:['Намазать тортилью соусом Цезарь.','Выложить курицу, листья, пармезан, крутоны.','Свернуть конвертом.','Готовить в аэрогриле при 180°C 5–6 мин.'] },
+    { emoji:'🧀', name:'Чикен Чиз', desc:'Курица, чеддер, моцарелла, соус барбекю', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Куриное филе — 150 г','Чеддер — 40 г','Моцарелла — 40 г','Соус BBQ — 2 ст.л.'],
+      steps:['Обжарить или запечь курицу.','Намазать тортилью соусом BBQ.','Выложить курицу и оба сыра.','Завернуть, готовить при 180°C 6 мин.'] },
+    { emoji:'🌮', name:'Мексиканская с курицей', desc:'Курица, кукуруза, фасоль, сыр, острый соус', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Куриное филе — 150 г','Кукуруза консервированная — 3 ст.л.','Фасоль — 3 ст.л.','Твёрдый сыр — 50 г','Острый соус'],
+      steps:['Обжарить курицу с паприкой.','Выложить начинку на тортилью.','Посыпать сыром, добавить острый соус.','Завернуть, готовить при 180°C 6 мин.'] },
+    { emoji:'🌯', name:'Жюльен в тортилье', desc:'Курица с грибами в сливочном соусе, сыр — горячая закуска', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Куриное филе — 100 г','Шампиньоны — 80 г','Сливки — 50 мл','Твёрдый сыр — 50 г'],
+      steps:['Обжарить курицу с грибами, влить сливки. Тушить 5 мин.','Выложить начинку на тортилью.','Посыпать сыром.','Завернуть, готовить при 180°C 6 мин.'] },
+  ],
+  'tortilla-2': [
+    { emoji:'🐟', name:'Лосось Филадельфия', desc:'Слабосолёный лосось, творожный сыр, огурец — нежно', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Лосось слабосолёный — 100 г','Творожный сыр — 60 г','Огурец — ½ шт'],
+      steps:['Намазать тортилью творожным сыром.','Выложить лосось и огурец.','Завернуть роллом.','Готовить в аэрогриле при 160°C 3 мин (чтобы рыба не пересохла).'] },
+    { emoji:'🦐', name:'Тортилья с креветками и сыром', desc:'Чесночные креветки, творожный сыр, листья салата', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Чесночные креветки — 150 г','Творожный сыр — 60 г','Листья салата'],
+      steps:['Намазать тортилью творожным сыром.','Выложить листья салата и креветки.','Завернуть.','Готовить при 180°C 5 мин.'] },
+    { emoji:'🦀', name:'Крабовая тортилья', desc:'Крабовые палочки, творожный сыр, огурец', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Крабовые палочки — 100 г','Творожный сыр — 60 г','Огурец — ½ шт','Кунжут'],
+      steps:['Намазать сыром, выложить крабовые палочки и огурец.','Посыпать кунжутом.','Завернуть.','Готовить при 180°C 4 мин.'] },
+  ],
+  'tortilla-3': [
+    { emoji:'🥩', name:'Шашлычная тортилья', desc:'Мясо с маринованным луком и шашлычным соусом', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Свинина жареная — 150 г','Маринованный лук — 2 ст.л.','Соус шашлычный — 2 ст.л.'],
+      steps:['Намазать тортилью соусом.','Выложить мясо и маринованный лук.','Завернуть.','Готовить при 180°C 5 мин.'] },
+    { emoji:'🌭', name:'Пепперони', desc:'Пепперони, моцарелла, томатный соус — как пицца в конверте', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Пепперони — 60 г','Моцарелла — 80 г','Томатный соус — 2 ст.л.'],
+      steps:['Намазать соусом.','Выложить пепперони и сыр.','Завернуть.','Готовить при 180°C 6 мин.'] },
+    { emoji:'🧀', name:'Четыре сыра', desc:'Моцарелла, чеддер, дорблю, пармезан — расплавленная симфония', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Моцарелла — 30 г','Чеддер — 30 г','Дорблю — 20 г','Пармезан — 20 г'],
+      steps:['Выложить все сыры на тортилью.','Завернуть.','Готовить при 180°C 5 мин до расплавления.'] },
+    { emoji:'🍔', name:'Бургер-тортилья', desc:'Котлета, чеддер, огурец, кетчуп, горчица', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Котлета — 1 шт','Чеддер — 30 г','Маринованный огурец','Кетчуп, горчица'],
+      steps:['Намазать тортилью кетчупом и горчицей.','Выложить котлету, сыр, огурец.','Завернуть.','Готовить при 180°C 6 мин.'] },
+    { emoji:'🌯', name:'Ветчина и сыр', desc:'Классика — ветчина, сыр, помидор', tag:'tortilla', tagLabel:'тортилья',
+      ing:['Тортилья — 2 шт','Ветчина — 80 г','Твёрдый сыр — 60 г','Помидор — 1 шт'],
+      steps:['Выложить начинку на тортилью.','Завернуть конвертом.','Готовить при 180°C 5 мин.'] },
+  ],
+  'tortilla-4': [
+    { emoji:'🍣', name:'Ленивая суши-тортилья', desc:'Рис для суши, творожный сыр, крабовые палочки — как горячие роллы', tag:'sushi', tagLabel:'суши',
+      ing:['Тортилья — 2 шт','Рис для суши готовый — 6 ст.л.','Творожный сыр — 60 г','Крабовые палочки — 80 г','Огурец — ½ шт','Икра мойвы'],
+      steps:['Намазать тортилью творожным сыром.','Выложить рис ровным слоем.','Добавить крабовые палочки, огурец, икру.','Свернуть рулетом.','Готовить в аэрогриле при 180°C 4 мин.','Нарезать как роллы.'] },
+    { emoji:'🍕', name:'Тортилья-пицца', desc:'Хрустящая тортилья как основа — пицца за 7 минут', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Тортилья — 2 шт','Томатный соус — 4 ст.л.','Моцарелла — 100 г','Начинка по вкусу (пепперони/ветчина/грибы)','Орегано'],
+      steps:['Намазать тортилью томатным соусом.','Выложить начинку и моцареллу.','Посыпать орегано.','Готовить при 180°C 5–7 мин до хрустящей корочки.'] },
+    { emoji:'🧀', name:'Хачапури-тортилья', desc:'Сулугуни, моцарелла, яйцо сверху', tag:'airfryer', tagLabel:'аэрогриль',
+      ing:['Тортилья — 2 шт','Сулугуни — 100 г','Моцарелла — 60 г','Яйцо — 1 шт'],
+      steps:['Смешать тёртые сыры. Выложить на тортилью.','Сложить конвертом, оставив отверстие посередине.','Готовить при 180°C 5 мин.','Разбить яйцо в центр, готовить ещё 2 мин.'] },
+  ],
+
+  'sushi-1': [
+    { emoji:'🍚', name:'Рис для суши', desc:'Правильно приготовленный рис — основа всего', tag:'sushi', tagLabel:'основа',
+      ing:['Круглозёрный рис — 250 г','Вода — 300 мл','Рисовый уксус — 3 ст.л.','Сахар — 1 ст.л.','Соль — 1 ч.л.'],
+      steps:['Промыть рис 5–6 раз до прозрачной воды.','Варить под крышкой на малом огне 15 мин.','Выключить и оставить под крышкой ещё 15 мин.','Смешать уксус, сахар и соль. Нагреть до растворения.','Добавить заправку в рис, аккуратно перемешать лопаткой.'] },
+  ],
+  'sushi-2': [
+    { emoji:'🦀', name:'Запечённые крабовые роллы', desc:'Классические роллы с шапочкой из майонеза и икры — запечь в аэрогриле', tag:'sushi', tagLabel:'суши',
+      ing:['Листы нори — 4 шт','Рис для суши — 300 г','Крабовые палочки — 200 г','Творожный сыр — 100 г','Огурец — 1 шт','Майонез — 2 ст.л.','Икра мойвы — 1 ст.л.','Твёрдый сыр — 50 г'],
+      steps:['Выложить рис на нори, отступая 2 см с одного края.','Добавить начинку: сыр, крабовые палочки, огурец.','Свернуть ролл, нарезать на 6–8 частей.','Смешать шапочку: майонез + икра + тёртый сыр.','Выложить шапочку сверху, запекать при 200°C 5–7 мин.'] },
+    { emoji:'🧀', name:'Запечённые роллы с сыром', desc:'Роллы с крабом и огурцом под сырно-майонезной шапочкой', tag:'sushi', tagLabel:'суши',
+      ing:['Нори — 4 шт','Рис для суши — 300 г','Крабовые палочки — 150 г','Огурец — 1 шт','Творожный сыр — 80 г','Тёртый сыр — 60 г','Майонез — 2 ст.л.','Икра мойвы'],
+      steps:['Собрать роллы с крабовыми палочками и огурцом.','Нарезать на 8 частей.','Смешать тёртый сыр, майонез и икру.','Выложить шапочку на каждый кусочек.','Запечь при 200°C 6 мин.'] },
+  ],
+  'sushi-3': [
+    { emoji:'🎂', name:'Торт-суши с крабовыми палочками', desc:'Слоёный суши-торт — эффектно и вкусно для праздника', tag:'sushi', tagLabel:'суши',
+      ing:['Рис для суши готовый — 300 г','Крабовые палочки — 200 г','Творожный сыр — 200 г','Огурцы — 2 шт','Икра мойвы или масаго','Кунжут'],
+      steps:['Выложить первый слой риса в форму, прижать.','Намазать слой творожным сыром.','Выложить нарезанные крабовые палочки.','Добавить слой огурца, снова рис.','Сверху намазать сыром, украсить икрой и кунжутом.','Поставить в холодильник на 1 час, нарезать.'] },
+    { emoji:'🍔', name:'Суши-бургер', desc:'Котлетки из риса как булочки, начинка внутри — эффектное блюдо', tag:'sushi', tagLabel:'суши',
+      ing:['Рис для суши — 300 г','Нори — 1 лист','Творожный сыр — 80 г','Крабовые палочки — 100 г','Огурец — 1 шт','Авокадо — ½ шт','Икра мойвы'],
+      steps:['Из риса сформировать две круглые плоские "котлетки".','Обернуть боковины узкой полоской нори.','Между "котлетками" выложить сыр, крабовые палочки, огурец, авокадо.','Украсить икрой.'] },
+    { emoji:'🥗', name:'Салат "Суши"', desc:'Все компоненты суши в виде салата — легко и быстро', tag:'sushi', tagLabel:'суши',
+      ing:['Рис для суши готовый — 300 г','Крабовые палочки — 200 г','Творожный сыр — 200 г','Огурцы — 2 шт','Икра мойвы — 100 г','Кунжут','Листы нори — 2 шт'],
+      steps:['Выложить рис в большую миску.','Добавить нарезанный творожный сыр, огурцы, крабовые палочки.','Сверху выложить икру.','Посыпать кунжутом и крошкой нори.','Подавать охлаждённым.'] },
+  ],
+
+  'salad-1': [
+    { emoji:'🥗', name:'Греческий салат', desc:'Помидоры, огурцы, маслины, фета, красный лук, орегано', tag:'quick', tagLabel:'10 мин',
+      ing:['Помидоры — 2 шт','Огурец — 1 шт','Перец болгарский — 1 шт','Маслины — 50 г','Фета — 100 г','Красный лук — ½ шт','Оливковое масло — 3 ст.л.','Орегано, соль'],
+      steps:['Нарезать все овощи крупно.','Добавить маслины и фету кубиком.','Заправить оливковым маслом и орегано.','Не перемешивать слишком сильно — фета не должна раскрошиться.'] },
+    { emoji:'🍅', name:'Капрезе', desc:'Моцарелла, томаты, базилик, оливковое масло', tag:'quick', tagLabel:'5 мин',
+      ing:['Моцарелла — 125 г','Помидоры крупные — 2 шт','Базилик свежий — пучок','Оливковое масло — 2 ст.л.','Бальзамик — 1 ч.л.','Соль, перец'],
+      steps:['Нарезать моцареллу и помидоры кружками.','Чередовать на тарелке.','Листья базилика сверху.','Сбрызнуть маслом и бальзамиком.'] },
+    { emoji:'🥒', name:'Дачный с огурцами и зеленью', desc:'Огурцы, зелёный лук, укроп, сметана — лето в тарелке', tag:'quick', tagLabel:'5 мин',
+      ing:['Огурцы — 3 шт','Зелёный лук — пучок','Укроп — пучок','Сметана или масло — 2 ст.л.','Соль'],
+      steps:['Нарезать огурцы кружками или кубиком.','Нарезать лук и укроп.','Заправить сметаной или маслом. Посолить.'] },
+    { emoji:'🌿', name:'Руккола с пармезаном и лимоном', desc:'Руккола, пармезан стружкой, кедровые орехи, лимонная заправка', tag:'quick', tagLabel:'7 мин',
+      ing:['Руккола — 80 г','Пармезан — 40 г','Кедровые орехи — 20 г','Оливковое масло — 2 ст.л.','Лимонный сок — 1 ст.л.','Соль, перец'],
+      steps:['Обжарить орехи на сухой сковороде.','Рукколу выложить на тарелку.','Добавить стружку пармезана и орехи.','Заправить маслом и лимоном.'] },
+  ],
+  'salad-2': [
+    { emoji:'🐟', name:'Салат с лососем и авокадо', desc:'Лосось, авокадо, руккола, каперсы, лимон', tag:'quick', tagLabel:'10 мин',
+      ing:['Лосось слабосолёный — 150 г','Авокадо — 1 шт','Руккола — 60 г','Каперсы — 1 ст.л.','Лимон','Оливковое масло'],
+      steps:['Нарезать лосось и авокадо.','Выложить рукколу, сверху лосось и авокадо.','Добавить каперсы.','Заправить маслом и лимоном.'] },
+    { emoji:'🥩', name:'Тёплый салат с говядиной', desc:'Обжаренная говядина, руккола, черри, бальзамик', tag:'quick', tagLabel:'20 мин',
+      ing:['Говядина (вырезка) — 200 г','Руккола — 60 г','Помидоры черри — 150 г','Пармезан — 30 г','Бальзамик — 1 ст.л.','Оливковое масло','Соль, перец'],
+      steps:['Обжарить говядину полосками на сильном огне 2–3 мин.','Выложить рукколу и черри на тарелку.','Разложить горячую говядину сверху.','Посыпать пармезаном, сбрызнуть бальзамиком и маслом.'] },
+    { emoji:'🥗', name:'Цезарь с курицей', desc:'Запечённая курица, романо, крутоны, пармезан, соус', tag:'quick', tagLabel:'25 мин',
+      ing:['Куриное филе — 200 г','Листья романо — 1 кочан','Пармезан — 40 г','Крутоны — 50 г','Майонез — 3 ст.л.','Чеснок — 1 зуб.','Лимонный сок — 1 ч.л.','Вустерский соус — 1 ч.л.'],
+      steps:['Запечь или обжарить курицу, нарезать.','Соус: майонез + чеснок + лимон + вустер.','Листья романо разломить, заправить соусом.','Добавить крутоны, курицу, пармезан.'] },
+    { emoji:'🐠', name:'Нисуаз', desc:'Тунец, яйца, стручковая фасоль, маслины, анчоусы', tag:'special', tagLabel:'необычный',
+      ing:['Тунец консервированный — 160 г','Яйца варёные — 2 шт','Стручковая фасоль — 100 г','Помидоры черри — 150 г','Маслины — 50 г','Картофель молодой — 200 г','Оливковое масло, лимон, горчица'],
+      steps:['Отварить картофель и фасоль. Остудить.','Заправка: масло + лимон + горчица + чеснок.','Выложить на тарелку все ингредиенты раздельно.','Полить заправкой. Украсить анчоусами.'] },
+  ],
+  'salad-3': [
+    { emoji:'🥗', name:'Оливье', desc:'Картофель, морковь, яйца, огурцы, горошек, майонез', tag:'quick', tagLabel:'30 мин',
+      ing:['Картофель — 3 шт','Морковь — 2 шт','Яйца — 3 шт','Колбаса — 200 г','Огурцы маринованные — 3 шт','Горошек — 1 банка','Майонез — 4 ст.л.'],
+      steps:['Отварить картофель, морковь и яйца. Остудить.','Нарезать всё кубиком одинакового размера.','Добавить горошек и огурцы.','Заправить майонезом. Настоять в холодильнике 1 час.'] },
+    { emoji:'🐟', name:'Шуба', desc:'Сельдь, картофель, морковь, свёкла, майонез — слоями', tag:'quick', tagLabel:'40 мин',
+      ing:['Сельдь — 200 г (филе)','Картофель — 3 шт','Морковь — 2 шт','Свёкла — 2 шт','Яйца — 2 шт','Майонез'],
+      steps:['Отварить картофель, морковь, свёклу. Натереть.','Яйца сварить, натереть.','Выложить слоями: сельдь → картофель → майонез → морковь → майонез → яйца → свёкла → майонез.','Украсить, настоять 2 часа.'] },
+    { emoji:'🥬', name:'Витаминный с капустой', desc:'Свежая капуста, морковь, яблоко, лимонная заправка', tag:'quick', tagLabel:'10 мин',
+      ing:['Капуста белокочанная — 300 г','Морковь — 1 шт','Яблоко — 1 шт','Лимонный сок — 2 ст.л.','Масло оливковое — 2 ст.л.','Сахар — 1 ч.л.','Соль'],
+      steps:['Нашинковать капусту тонко. Помять руками с солью.','Натереть морковь и яблоко.','Заправить маслом, лимонным соком, сахаром.','Настоять 20 мин.'] },
+  ],
+
+  'dessert-1': [
+    { emoji:'☕', name:'Тирамису', desc:'Савоярди, маскарпоне, эспрессо, какао — ваш фирменный', tag:'special', tagLabel:'фирменное',
+      ing:['Савоярди — 200 г','Маскарпоне — 500 г','Яичные желтки — 4 шт','Сахар — 100 г','Эспрессо — 200 мл','Какао-порошок для посыпки'],
+      steps:['Взбить желтки с сахаром до белой пышной массы.','Добавить маскарпоне, аккуратно перемешать.','Окунать савоярди в остывший кофе (быстро — 1–2 сек).','Выложить слой, покрыть кремом. Повторить.','Посыпать какао. Охлаждать 4–6 часов.'] },
+    { emoji:'🍫', name:'Шоколадный фондан', desc:'Тёплый кекс с жидким центром — 4 ингредиента', tag:'special', tagLabel:'необычный',
+      ing:['Горький шоколад 70% — 100 г','Масло сливочное — 100 г','Яйца — 2 шт','Сахар — 60 г','Мука — 2 ст.л.'],
+      steps:['Растопить шоколад с маслом на водяной бане.','Взбить яйца с сахаром. Добавить в шоколад.','Всыпать муку, перемешать.','Разлить по смазанным формочкам. Убрать в холодильник на 30 мин.','Выпекать при 200°C ровно 10–11 мин. Подавать сразу.'] },
+    { emoji:'🍰', name:'Медовик', desc:'Тонкие медовые коржи, сметанный крем — настаивать ночь', tag:'quick', tagLabel:'90 мин',
+      ing:['Мёд — 3 ст.л.','Сахар — 200 г','Яйца — 2 шт','Сода — 1 ч.л.','Масло — 80 г','Мука — 400 г','Сметана — 500 г для крема'],
+      steps:['Растопить мёд, сахар, масло на водяной бане. Добавить соду.','Снять с огня, вмешать яйца и муку.','Разделить тесто на 7–8 частей. Раскатывать тонко, выпекать каждый корж при 180°C 4–5 мин.','Крем: взбить сметану с сахаром.','Промазать коржи, украсить крошкой. Настоять ночь.'] },
+    { emoji:'🍫', name:'Брауни', desc:'Влажные шоколадные квадратики — между кексом и конфетой', tag:'quick', tagLabel:'25 мин',
+      ing:['Шоколад тёмный — 150 г','Масло сливочное — 100 г','Яйца — 2 шт','Сахар — 150 г','Мука — 60 г'],
+      steps:['Растопить шоколад с маслом.','Взбить яйца с сахаром до побеления.','Соединить, добавить муку. Не перебивать.','Вылить в форму 20×20 см.','Выпекать при 175°C 18–22 мин. Центр должен чуть дрожать.'] },
+    { emoji:'🍪', name:'Шортбред', desc:'Масло, мука, сахар — рассыпчатое шотландское печенье', tag:'quick', tagLabel:'20 мин',
+      ing:['Масло сливочное — 200 г','Мука — 280 г','Сахарная пудра — 80 г','Щепотка соли'],
+      steps:['Взбить мягкое масло с пудрой.','Добавить муку и соль. Вымешать до крошки, собрать в шар.','Раскатать 0,5 см, нарезать полосками или вырезать.','Выпекать при 160°C 15–18 мин — должны остаться светлыми.'] },
+    { emoji:'🧁', name:'Творожный кекс с лимоном', desc:'Влажный и нежный — творог даёт особую текстуру', tag:'quick', tagLabel:'50 мин',
+      ing:['Творог — 250 г','Яйца — 2 шт','Сахар — 150 г','Масло — 100 г','Мука — 180 г','Разрыхлитель — 1,5 ч.л.','Лимон — цедра и сок'],
+      steps:['Взбить яйца с сахаром. Добавить масло.','Добавить творог, лимонную цедру и сок.','Всыпать муку с разрыхлителем.','Вылить в форму, выпекать при 175°C 45–50 мин.'] },
+  ],
+  'dessert-2': [
+    { emoji:'🍮', name:'Панна котта', desc:'Сливки, желатин, ваниль — с ягодным соусом', tag:'freeze', tagLabel:'холодный',
+      ing:['Сливки 20% — 500 мл','Желатин — 10 г','Сахар — 80 г','Ванильный сахар — 1 пакетик','Ягоды для соуса — 150 г'],
+      steps:['Замочить желатин в холодной воде на 10 мин.','Нагреть сливки с сахаром, не доводить до кипения.','Добавить желатин, размешать до растворения.','Разлить по формам, убрать в холодильник на 4 часа.','Ягодный соус: ягоды + сахар, варить 5 мин.'] },
+    { emoji:'🍫', name:'Шоколадный мусс', desc:'Горький шоколад, сливки — воздушный и насыщенный', tag:'freeze', tagLabel:'холодный',
+      ing:['Шоколад тёмный — 150 г','Сливки 33% — 200 мл','Яичные белки — 2 шт','Сахар — 30 г'],
+      steps:['Растопить шоколад. Слегка остудить.','Взбить сливки до мягких пиков. Добавить в шоколад.','Взбить белки с сахаром, аккуратно вмешать.','Разложить по бокалам. Холодильник 2 часа.'] },
+    { emoji:'🎂', name:'Чизкейк без выпечки', desc:'Творожный сыр, сливки, основа из печенья', tag:'freeze', tagLabel:'холодный',
+      ing:['Творожный сыр — 400 г','Сливки 33% — 200 мл','Сахарная пудра — 100 г','Желатин — 8 г','Печенье песочное — 200 г','Масло сливочное — 80 г'],
+      steps:['Раскрошить печенье, смешать с растопленным маслом. Выложить в форму, уплотнить. Холодильник 30 мин.','Замочить желатин, распустить на водяной бане.','Взбить сыр с пудрой. Взбить сливки. Соединить.','Добавить желатин. Вылить на основу.','Холодильник 4–6 часов.'] },
+  ],
+};
+
+const SHOP_CATEGORIES = [
+  { name:'Мясо и рыба', icon:'🥩', items:[
+    { label:'Куриные бёдра', amount:'1–1,5 кг' },
+    { label:'Куриные крылышки', amount:'1 кг' },
+    { label:'Куриное филе', amount:'700 г' },
+    { label:'Куриные голени', amount:'8 шт' },
+    { label:'Говядина (кусок)', amount:'500 г' },
+    { label:'Говяжий фарш', amount:'600 г' },
+    { label:'Рыба (хек / треска)', amount:'800 г' },
+    { label:'Лосось или форель', amount:'600 г' },
+    { label:'Ветчина', amount:'200 г' },
+    { label:'Бекон', amount:'200 г' },
+    { label:'Пепперони', amount:'150 г' },
+    { label:'Креветки', amount:'500 г' },
+    { label:'Крабовые палочки', amount:'400 г' },
+  ]},
+  { name:'Молочные и яйца', icon:'🥛', items:[
+    { label:'Яйца', amount:'12–15 шт' },
+    { label:'Молоко', amount:'♻️ докупать' },
+    { label:'Сыр твёрдый', amount:'400 г' },
+    { label:'Сыр плавленый', amount:'2 шт' },
+    { label:'Сливочный сыр', amount:'200 г' },
+    { label:'Творожный сыр', amount:'400 г' },
+    { label:'Маскарпоне', amount:'250 г (по потребности)' },
+    { label:'Сметана', amount:'400 г' },
+    { label:'Сливки 20%', amount:'600 мл' },
+    { label:'Масло сливочное', amount:'200 г' },
+    { label:'Творог', amount:'400 г' },
+    { label:'Камамбер', amount:'1 шт (по потребности)' },
+  ]},
+  { name:'Овощи', icon:'🥦', items:[
+    { label:'Картофель', amount:'2 кг' },
+    { label:'Морковь', amount:'5 шт' },
+    { label:'Лук репчатый', amount:'7 шт' },
+    { label:'Чеснок', amount:'2 головки' },
+    { label:'Помидоры', amount:'6–7 шт' },
+    { label:'Перец болгарский', amount:'3 шт' },
+    { label:'Огурец', amount:'4 шт' },
+    { label:'Шампиньоны', amount:'500 г' },
+    { label:'Авокадо', amount:'2 шт' },
+    { label:'Лук красный', amount:'1 шт' },
+    { label:'Цветная капуста', amount:'500 г (по потребности)' },
+    { label:'Кабачок', amount:'2 шт (по потребности)' },
+    { label:'Баклажаны', amount:'2 шт (по потребности)' },
+  ]},
+  { name:'Крупы и паста', icon:'🍝', items:[
+    { label:'Спагетти', amount:'500 г' },
+    { label:'Пенне или ригатони', amount:'500 г' },
+    { label:'Фетучини или тальятелле', amount:'250 г' },
+    { label:'Фунчоза', amount:'200 г' },
+    { label:'Рис круглозёрный (для суши)', amount:'500 г' },
+    { label:'Рис', amount:'500 г' },
+    { label:'Гречка', amount:'400 г' },
+    { label:'Мука', amount:'500 г' },
+  ]},
+  { name:'Для завтраков и суши', icon:'🥪', items:[
+    { label:'Хлеб тостовый', amount:'♻️ докупать' },
+    { label:'Ржаной хлеб', amount:'1 буханка' },
+    { label:'Тортильи', amount:'8–10 шт' },
+    { label:'Булочки для бургера', amount:'4 шт' },
+    { label:'Лосось слабосолёный', amount:'300 г' },
+    { label:'Савоярди', amount:'200 г (по потребности)' },
+    { label:'Нори (листы)', amount:'1 упаковка' },
+    { label:'Лаваш тонкий', amount:'4 шт' },
+    { label:'Слоёное тесто', amount:'500 г' },
+  ]},
+  { name:'Бакалея и соусы', icon:'🫙', items:[
+    { label:'Томатная паста', amount:'2 банки' },
+    { label:'Помидоры консервированные', amount:'2 банки' },
+    { label:'Соевый соус', amount:'1 бутылка' },
+    { label:'Рисовый уксус', amount:'1 бутылка' },
+    { label:'Мёд', amount:'1 банка' },
+    { label:'Каперсы', amount:'1 банка' },
+    { label:'Маслины', amount:'1 банка' },
+    { label:'Икра мойвы (масаго)', amount:'1 банка' },
+    { label:'Кунжутное масло', amount:'1 бутылка' },
+    { label:'Оливковое масло', amount:'1 бутылка' },
+    { label:'Растительное масло', amount:'1 бутылка' },
+    { label:'Панировочные сухари', amount:'300 г' },
+    { label:'Желатин', amount:'1 пачка' },
+    { label:'Кокосовое молоко', amount:'1 банка (по потребности)' },
+    { label:'Соус BBQ', amount:'1 бутылка' },
+    { label:'Кунжут', amount:'1 пачка' },
+  ]},
+  { name:'Специи', icon:'🌶', items:[
+    { label:'Паприка', amount:'' },
+    { label:'Орегано', amount:'' },
+    { label:'Тимьян', amount:'' },
+    { label:'Хмели-сунели', amount:'' },
+    { label:'Имбирь молотый', amount:'' },
+    { label:'Куркума', amount:'' },
+    { label:'Мускатный орех', amount:'' },
+    { label:'Зира', amount:'' },
+    { label:'Розмарин', amount:'' },
+  ]},
+];
+
+// Custom dishes added by user (stored in session)
+let customDishes = {};
+try {
+  const saved = sessionStorage.getItem('customDishes');
+  if (saved) customDishes = JSON.parse(saved);
+} catch(e) {}
+
+function saveCustomDishes() {
+  try { sessionStorage.setItem('customDishes', JSON.stringify(customDishes)); } catch(e) {}
+}
+
+function getAllDishes(gridId) {
+  const base = DISHES[gridId] || [];
+  const custom = customDishes[gridId] || [];
+  return [...base, ...custom];
+}
+
+function renderDishes() {
+  // Get all grid IDs from the DOM
+  const grids = document.querySelectorAll('[id^="grid-"]');
+  grids.forEach(el => {
+    const gridId = el.id.replace('grid-', '');
+    const dishes = getAllDishes(gridId);
+    el.innerHTML = dishes.map((d, i) => {
+      const key = gridId + '-' + i;
+      const photoSrc = photos[key] || '';
+      return `
+        <div class="dish-card">
+          <div class="dish-icon">
+            ${photoSrc ? `<img src="${photoSrc}" alt="${d.name}" id="img-${key}">` : `<img src="" alt="" id="img-${key}" style="display:none"><span class="emoji-fallback">${d.emoji}</span>`}
+            <span class="tag-corner ${d.tag ? 'tag-'+d.tag : ''}">${d.tagLabel||''}</span>
+            <button class="photo-btn" onclick="triggerPhotoUpload('${key}', event)">📷 Фото</button>
+            <input type="file" class="photo-input" accept="image/*" id="pi-${key}" onchange="handlePhotoUpload('${key}', this)">
+          </div>
+          <div class="dish-body">
+            <div class="dish-name">${d.name}</div>
+            <div class="dish-desc">${d.desc}</div>
+            <div class="dish-actions">
+              <button class="btn-recipe" onclick="showRecipe('${gridId}',${i})">📖 Рецепт</button>
+              <button class="btn-add" id="add-${key}" onclick="addToOrder('${gridId}',${i})">+ В заказ</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  });
+}
+
+function triggerPhotoUpload(key, event) {
+  event.stopPropagation();
+  document.getElementById('pi-' + key).click();
+}
+
+function handlePhotoUpload(key, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    photos[key] = e.target.result;
+    const imgEl = document.getElementById('img-' + key);
+    if (imgEl) {
+      imgEl.src = e.target.result;
+      imgEl.style.display = 'block';
+      // Hide emoji if image loaded
+      const emojiEl = imgEl.nextElementSibling;
+      if (emojiEl && emojiEl.classList.contains('emoji-fallback')) {
+        emojiEl.style.display = 'none';
+      }
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function showRecipe(gridId, idx) {
+  const dishes = getAllDishes(gridId);
+  const d = dishes[idx];
+  const key = gridId + '-' + idx;
+  
+  document.getElementById('modal-emoji').textContent = d.emoji;
+  const modalImg = document.getElementById('modal-img');
+  if (photos[key]) {
+    modalImg.src = photos[key];
+    modalImg.style.display = 'block';
+    document.getElementById('modal-emoji').style.display = 'none';
+  } else {
+    modalImg.style.display = 'none';
+    document.getElementById('modal-emoji').style.display = 'block';
+  }
+  document.getElementById('modal-title').textContent = d.name;
+  document.getElementById('modal-desc').textContent = d.desc;
+  document.getElementById('modal-ingredients').innerHTML = d.ing.map(i=>`<li>${i}</li>`).join('');
+  document.getElementById('modal-steps').innerHTML = d.steps.map(s=>`<li>${s}</li>`).join('');
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) closeModalBtn();
+}
+function closeModalBtn() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function addToOrder(gridId, idx) {
+  const dishes = getAllDishes(gridId);
+  const d = dishes[idx];
+  const key = gridId + '-' + idx;
+  const btn = document.getElementById('add-'+key);
+  if (btn && btn.classList.contains('added')) return;
+  if (btn) { btn.classList.add('added'); btn.textContent = '✓ Добавлено'; }
+  order.push({ key, emoji: d.emoji, name: d.name });
+  renderOrder();
+}
+
+function renderOrder() {
+  const el = document.getElementById('order-list');
+  const empty = document.getElementById('order-empty');
+  if (order.length === 0) {
+    empty.style.display = 'block';
+    el.innerHTML = '';
+    el.appendChild(empty);
+    return;
+  }
+  empty.style.display = 'none';
+  el.innerHTML = order.map((item, i) => `
+    <div class="order-item">
+      <span class="order-emoji">${item.emoji}</span>
+      <span class="order-item-name">${item.name}</span>
+      <button class="btn-remove" onclick="removeOrder(${i})" title="Убрать">×</button>
+    </div>
+  `).join('');
+}
+
+function removeOrder(i) {
+  const item = order[i];
+  const btn = document.getElementById('add-'+item.key);
+  if (btn) { btn.classList.remove('added'); btn.textContent = '+ В заказ'; }
+  order.splice(i, 1);
+  renderOrder();
+}
+
+function clearOrder() {
+  order.forEach(item => {
+    const btn = document.getElementById('add-'+item.key);
+    if (btn) { btn.classList.remove('added'); btn.textContent = '+ В заказ'; }
+  });
+  order.length = 0;
+  renderOrder();
+}
+
+function copyOrder() {
+  if (order.length === 0) { alert('Список пустой!'); return; }
+  const text = 'Заказ на ужин:\n' + order.map(o => '• ' + o.emoji + ' ' + o.name).join('\n');
+  navigator.clipboard.writeText(text).then(() => alert('Скопировано!')).catch(() => {
+    prompt('Скопируй список:', text);
+  });
+}
+
+function renderShop() {
+  const el = document.getElementById('shop-categories');
+  el.innerHTML = SHOP_CATEGORIES.map((cat, ci) => `
+    <div class="shop-category">
+      <div class="shop-cat-title">${cat.icon} ${cat.name}</div>
+      <div class="shop-items">
+        ${cat.items.map((item, ii) => `
+          <div class="shop-item" id="si-${ci}-${ii}" onclick="toggleShop(${ci},${ii})">
+            <input type="checkbox" id="cb-${ci}-${ii}" onclick="event.stopPropagation();toggleShop(${ci},${ii})">
+            <label for="cb-${ci}-${ii}">${item.label}</label>
+            ${item.amount ? `<span class="shop-amount">${item.amount}</span>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleShop(ci, ii) {
+  const row = document.getElementById('si-'+ci+'-'+ii);
+  const cb = document.getElementById('cb-'+ci+'-'+ii);
+  cb.checked = !cb.checked;
+  row.classList.toggle('checked', cb.checked);
+}
+
+function checkAll(val) {
+  SHOP_CATEGORIES.forEach((cat, ci) => {
+    cat.items.forEach((_, ii) => {
+      const cb = document.getElementById('cb-'+ci+'-'+ii);
+      const row = document.getElementById('si-'+ci+'-'+ii);
+      if (cb) { cb.checked = val; row.classList.toggle('checked', val); }
+    });
+  });
+}
+
+function copyShopList() {
+  const unchecked = [];
+  SHOP_CATEGORIES.forEach((cat, ci) => {
+    const items = cat.items.filter((_, ii) => {
+      const cb = document.getElementById('cb-'+ci+'-'+ii);
+      return cb && !cb.checked;
+    });
+    if (items.length) {
+      unchecked.push(cat.name + ':');
+      items.forEach(i => unchecked.push('  • ' + i.label + (i.amount ? ' — ' + i.amount : '')));
+    }
+  });
+  if (!unchecked.length) { alert('Все продукты отмечены как купленные!'); return; }
+  const text = 'Список продуктов:\n\n' + unchecked.join('\n');
+  navigator.clipboard.writeText(text).then(() => alert('Список скопирован!')).catch(() => {
+    prompt('Скопируй список:', text);
+  });
+}
+
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// New dish photo preview
+function previewNewPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const preview = document.getElementById('new-photo-preview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveNewDish() {
+  const name = document.getElementById('new-name').value.trim();
+  const emoji = document.getElementById('new-emoji').value.trim() || '🍽';
+  const desc = document.getElementById('new-desc').value.trim();
+  const section = document.getElementById('new-section').value;
+  const tag = document.getElementById('new-tag').value;
+  const ingRaw = document.getElementById('new-ing').value.trim();
+  const stepsRaw = document.getElementById('new-steps').value.trim();
+
+  if (!name) { alert('Введи название блюда'); return; }
+
+  const tagLabels = { quick:'Быстро', special:'Необычное', airfryer:'Аэрогриль', freeze:'В морозилку', sushi:'Суши', tortilla:'Тортилья' };
+
+  const dish = {
+    emoji,
+    name,
+    desc: desc || '',
+    tag,
+    tagLabel: tagLabels[tag] || '',
+    ing: ingRaw ? ingRaw.split('\n').filter(l => l.trim()) : [],
+    steps: stepsRaw ? stepsRaw.split('\n').filter(l => l.trim()) : [],
+  };
+
+  if (!customDishes[section]) customDishes[section] = [];
+  customDishes[section].push(dish);
+  saveCustomDishes();
+
+  // Handle photo
+  const photoInput = document.getElementById('new-photo-input');
+  const baseCount = (DISHES[section] || []).length;
+  const customCount = customDishes[section].length - 1;
+  const newIdx = baseCount + customCount;
+  const key = section + '-' + newIdx;
+
+  if (photoInput.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      photos[key] = e.target.result;
+      renderDishes();
+      showSuccessAndNavigate(section);
+    };
+    reader.readAsDataURL(photoInput.files[0]);
+  } else {
+    renderDishes();
+    showSuccessAndNavigate(section);
+  }
+}
+
+function showSuccessAndNavigate(section) {
+  // Clear form
+  document.getElementById('new-name').value = '';
+  document.getElementById('new-emoji').value = '';
+  document.getElementById('new-desc').value = '';
+  document.getElementById('new-ing').value = '';
+  document.getElementById('new-steps').value = '';
+  document.getElementById('new-photo-preview').style.display = 'none';
+  document.getElementById('new-photo-input').value = '';
+
+  // Navigate to the section
+  const pageId = section.split('-')[0];
+  const btn = Array.from(document.querySelectorAll('#nav button')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+pageId+"'"));
+  if (btn) showPage(pageId, btn);
+
+  // Show brief confirmation
+  const info = document.createElement('div');
+  info.style.cssText = 'position:fixed;top:80px;right:20px;background:var(--green);color:white;padding:12px 20px;border-radius:10px;z-index:500;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.2)';
+  info.textContent = '✓ Блюдо добавлено!';
+  document.body.appendChild(info);
+  setTimeout(() => info.remove(), 2500);
+}
+
+renderDishes();
+renderShop();
+renderOrder();
+</script>
+</body>
+</html>
