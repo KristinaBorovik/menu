@@ -1386,6 +1386,7 @@ function saveCustomDishes() {
 function getAllDishes(gridId) {
   const base = DISHES[gridId] || [];
   const custom = customDishes[gridId] || [];
+
   return [...base, ...custom];
 }
 
@@ -1490,13 +1491,22 @@ function addToOrder(gridId, idx) {
 function renderOrder() {
   const el = document.getElementById('order-list');
   const empty = document.getElementById('order-empty');
+
+  if (!el) return;
+
   if (order.length === 0) {
-    empty.style.display = 'block';
-    el.innerHTML = '';
-    el.appendChild(empty);
+    if (empty) {
+      empty.style.display = 'block';
+      el.innerHTML = '';
+      el.appendChild(empty);
+    }
     return;
   }
-  empty.style.display = 'none';
+
+  if (empty) {
+    empty.style.display = 'none';
+  }
+
   el.innerHTML = order.map((item, i) => `
     <div class="order-item">
       <span class="order-emoji">${item.emoji}</span>
@@ -1507,19 +1517,38 @@ function renderOrder() {
 }
 
 function removeOrder(i) {
+  if (i < 0 || i >= order.length) return;
+
   const item = order[i];
-  const btn = document.getElementById('add-'+item.key);
-  if (btn) { btn.classList.remove('added'); btn.textContent = '+ В заказ'; }
+
+  if (!item) return;
+
+  const btn = document.getElementById('add-' + item.key);
+
+  if (btn) {
+    btn.classList.remove('added');
+    btn.textContent = '+ В заказ';
+  }
+
   order.splice(i, 1);
+
   renderOrder();
 }
 
 function clearOrder() {
   order.forEach(item => {
-    const btn = document.getElementById('add-'+item.key);
-    if (btn) { btn.classList.remove('added'); btn.textContent = '+ В заказ'; }
+    if (!item) return;
+
+    const btn = document.getElementById('add-' + item.key);
+
+    if (btn) {
+      btn.classList.remove('added');
+      btn.textContent = '+ В заказ';
+    }
   });
+
   order.length = 0;
+
   renderOrder();
 }
 
